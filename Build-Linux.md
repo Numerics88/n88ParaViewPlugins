@@ -7,13 +7,13 @@ in a way such that the plugins build against it will load in the binary distribu
 
 ## Build on Debian 7
 
-I have not successfully build ParaView on Debian 6, as claimed on
+I have not successfully built ParaView on Debian 6, as claimed on
 http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 . However, Debian 7 works. And judging by
-the system libraries that the binary distribution ParaView links against, I believe that Kitware
+the system libraries that the binary distribution of ParaView links against, I believe that Kitware
 does also in fact use Debian 7.
 
 It might also be possible to use a newer distro of Linux, but then the plugins will be linked
-against newer versions of the standard system libraries, and can't be used with older
+against more recent versions of the standard system libraries, and can't be used with older
 distros.
 
 Since Debian 7 is probably not your day-to-day installation of Linux, he easiest thing is to run
@@ -40,7 +40,7 @@ sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev 
 
 ## Create a working directory somewhere
 
-You can arrange this however you want of course. Here I only give an example so subssequently
+You can arrange this however you want of course. Here I only give an example so subsequently
 I can give concrete paths. You will have to change all the paths to your scheme.
 
 ```sh
@@ -61,7 +61,7 @@ export LD_LIBRARY_PATH=$HOME/build/ParaViewSuperbuild/v5.1.2/build/install/lib:$
 git clone git://paraview.org/ParaViewSuperbuild.git
 ```
 
-It is very important to get the exact version of ParaView that correspond to these instructions:
+It is very important to get the exact version of ParaView that corresponds to these instructions:
 
 ```sh
 cd ParaViewSuperbuild
@@ -74,22 +74,23 @@ git checkout v5.1.2
 Create a build directory:
 
 ```sh
+mkdir ../build
 cd ../build
 ccmake ../ParaViewSuperbuild
 ```
 
 Configure according to http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , with some exceptions and things to note as follows::
 
-- I recommend that you set download_location to some permanent directory where you store tarballs, so that it doesn't have to download everything every time. Particularly since success on the first
+- I recommend that you set `download_location` to some permanent directory where you store tarballs, so that it doesn't have to download everything every time. Particularly since success on the first
 attempt is rare.
 
-- Turn Paraview_FROM_GIT to OFF.
+- Turn `Paraview_FROM_GIT` to `OFF`.
 
-- Leave USE_NONFREE_COMPONENTS set to OFF.
+- Leave `USE_NONFREE_COMPONENTS` set to `OFF`.
 
-- ENABLE_paraviewgettingstartedguide, ENABLE_paraviewtutorial, ENABLE_paraviewtutorialdata, ENABLE_paraviewusersguide can all be OFF
+- `ENABLE_paraviewgettingstartedguide`, `ENABLE_paraviewtutorial`, `ENABLE_paraviewtutorialdata`, `ENABLE_paraviewusersguide` can all be `OFF`
 
-- Set ENABLE_ospray to OFF, because it wants at least gcc 4.8
+- Set `ENABLE_ospray` to `OFF`, because it wants at least gcc 4.8
 
 - If something is listed at http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , but the option doesn't show up, ignore it.
 
@@ -102,7 +103,8 @@ make
 
 Do not use the -j flag.
 
-Go get a coffee. Or a bottle of wine. Or a long novel.
+Go get a coffee. Or a bottle of wine. Or a long novel. Eventually, if everything works, and you
+followed the instructions given above exactly, ParaView will build successfully.
 
 ## Create a working directory for building the plugins
 
