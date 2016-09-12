@@ -45,6 +45,6 @@ replace_path "@rpath" "@executable_path/../Libraries/"
 # tbb
 replace_path "$paraviewBuildPath"/tbb/src/tbb/lib "@executable_path/../Libraries/"
 
-# # For some reason, the HDF5 libraries aren't linked with the path at all:
-# install_name_tool -change libhdf5_hl.7.3.0.dylib @executable_path/../Libraries/libhdf5_hl.1.8.9.dylib "$libpath"
-# install_name_tool -change libhdf5.7.3.0.dylib @executable_path/../Libraries/libhdf5.1.8.9.dylib "$libpath"
+# HDF5 libraries
+install_name_tool -change libhdf5_hl.8.0.2.dylib @executable_path/../Libraries/libhdf5_hl.8.0.2.dylib "$libpath"
+install_name_tool -change libhdf5.8.0.2.dylib @executable_path/../Libraries/libhdf5.8.0.2.dylib "$libpath"
