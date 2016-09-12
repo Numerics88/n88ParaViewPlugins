@@ -24,7 +24,7 @@ Does not necessary need to be on the path; you can just specify its location in 
 
 ## Install git
 
-You need some version of git. I have install Github Desktop. https://desktop.github.com/
+You need some version of git. I used Github Desktop. https://desktop.github.com/
 
 ## Install jam
 
@@ -69,7 +69,8 @@ Also, apparently the build directory needs to be on the same drive as the ParaVi
 
 ## Set a minimal path
 
-A particular problem is that git installations have a program called link. You may have to customize the following for your system.
+A particular problem is that git installations have a program called `link`; so does
+Visual Studio. You may have to customize the following for your system.
 
 ```
 set PATH=C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE\CommonExtensions\Microsoft\TestWindow;C:\Program Files (x86)\MSBuild\12.0\bin\amd64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\BIN\amd64;C:\WINDOWS\Microsoft.NET\Framework64\v4.0.30319;C:\Program Files (x86)\Microsoft Visual Studio 12.0\VC\VCPackages;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\IDE;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Common7\Tools;C:\Program Files (x86)\HTML Help Workshop;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Team Tools\Performance Tools\x64;C:\Program Files (x86)\Microsoft Visual Studio 12.0\Team Tools\Performance Tools;C:\Program Files (x86)\Windows Kits\8.1\bin\x64;C:\Program Files (x86)\Windows Kits\8.1\bin\x86;C:\Program Files (x86)\Microsoft SDKs\Windows\v8.1A\bin\NETFX 4.5.1 Tools\x64\;C:\WINDOWS\system32;C:\WINDOWS;C:\WINDOWS\System32\Wbem;C:\WINDOWS\System32\WindowsPowerShell\v1.0\;C:\Program Files\ninja
