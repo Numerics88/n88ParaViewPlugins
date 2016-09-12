@@ -27,9 +27,9 @@ plugins for. As this documentation is part of the source code, you will then get
 exact instructions for that particular version of ParaView. Instructions are specific
 to the operating system:
 
-- [Linux](Build-Linux.md)
-- [Windows](Build-Windows.md)
-- [macOS](Build-Mac.md)
+- [Linux](./Build-Linux.md)
+- [Windows](./Build-Windows.md)
+- [macOS](./Build-Mac.md)
 
 
 ## Authors and Contributors
