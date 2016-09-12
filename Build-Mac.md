@@ -92,6 +92,18 @@ cd ParaViewSuperbuild
 git checkout v5.1.2
 ```
 
+## Delete the CMake package registry
+
+The package registry is perhaps the worst feature of CMake, since it regularly causes builds
+to fail while making it nearly impossible to diagnose the cause. Before building anything with
+CMake on macOS, delete any possible entries in the package registry with
+
+```sh
+rm -rf ~/.cmake
+```
+
+You should make it a habit to do this every time before running CMake.
+
 ## Configure CMake
 
 Create a build directory:
