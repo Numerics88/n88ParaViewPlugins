@@ -178,7 +178,7 @@ export AimIO_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/AimIO-build
 cd ~/code/n88ParaViewPlugins/5.1.2
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
-git checkout v1.0.0
+git checkout v5.1.2
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
 export ParaView_DIR=$HOME/build/ParaViewSuperbuild/v5.1.2/build/paraview/src/paraview-build
@@ -187,5 +187,5 @@ make
 make install
 ```
 
-If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install .
+If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install/lib .
 They can be copied to another system and loaded in ParaView 5.1.2 .
