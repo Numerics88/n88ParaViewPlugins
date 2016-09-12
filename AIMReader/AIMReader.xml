@@ -1,0 +1,51 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+
+   <SourceProxy name="AIMReader"
+                class="vtkAIMReaderPlugin"
+                label="AIM reader">
+     <Documentation
+       short_help="Read an AIM file."
+       long_help="Read an AIM file.  Output is an ImageData.">
+     </Documentation>
+
+     <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the AIM reader.
+        </Documentation>
+     </StringVectorProperty>
+
+     <IntVectorProperty
+       name="DataOnCells"
+       label="Data on Cells"
+       animateable="0"
+       command="SetDataOnCells"
+       number_of_elements="1"
+       default_values="1">
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <IntVectorProperty
+       name="Pad"
+       label="Pad"
+       command="SetPad"
+       number_of_elements="1"
+       default_values="0">
+       <BooleanDomain name="bool"/>
+     </IntVectorProperty>
+
+     <Hints>
+       <ReaderFactory extensions="aim"
+                      file_description="Scanco AIM image format" />
+     </Hints>
+
+   </SourceProxy>
+
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

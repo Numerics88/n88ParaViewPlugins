@@ -1,0 +1,27 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="sources">
+   <SourceProxy name="N88ModelReader"
+                class="vtkN88ModelReaderPlugin"
+                label="N88Model reader">
+     <Documentation
+       short_help="Read a N88Model file."
+       long_help="Read a N88Model file.  Output is an Unstructured Grid.">
+     </Documentation>
+     <StringVectorProperty
+        name="FileName"
+        animateable="0"
+        command="SetFileName"
+        number_of_elements="1">
+        <FileListDomain name="files"/>
+        <Documentation>
+          This property specifies the file name for the N88Model reader.
+        </Documentation>
+     </StringVectorProperty>
+     <Hints>
+       <ReaderFactory extensions="n88model"
+                      file_description="Numerics88 finite element model format" />
+     </Hints>
+   </SourceProxy>
+  </ProxyGroup>
+</ServerManagerConfiguration>
+

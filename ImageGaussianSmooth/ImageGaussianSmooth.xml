@@ -1,0 +1,68 @@
+<ServerManagerConfiguration>
+  <ProxyGroup name="filters">
+   <SourceProxy name="ImageGaussianSmooth" class="vtkImageGaussianSmooth" label="Image Gaussian Smooth">
+     <Documentation
+        long_help="Performs a gaussian convolution."
+        short_help="Performs a gaussian convolution.">
+          Implements a convolution of the input image with a gaussian. Supports
+          from one to three dimensional convolutions.
+     </Documentation>
+
+     <InputProperty
+        name="Input"
+        command="SetInputConnection">
+           <ProxyGroupDomain name="groups">
+             <Group name="sources"/>
+             <Group name="filters"/>
+           </ProxyGroupDomain>
+           <DataTypeDomain name="input_type">
+             <DataType value="vtkImageData"/>
+           </DataTypeDomain>
+      </InputProperty>
+
+      <IntVectorProperty
+         name="Dimensionality"
+         label="Dimensionality"
+         command="SetDimensionality"
+         number_of_elements="1"
+         default_values="3" >
+         <Documentation>
+           The dimensionality of this filter. This determines whether a one,
+           two, or three dimensional gaussian is performed.
+         </Documentation>
+      </IntVectorProperty>
+
+      <DoubleVectorProperty
+         name="StandardDeviation"
+         label="Standard Deviation"
+         command="SetStandardDeviation"
+         number_of_elements="1"
+         animateable="1"
+         default_values="1" >
+         <Documentation>
+           The Standard deviation of the gaussian in pixel units.
+         </Documentation>
+      </DoubleVectorProperty>
+
+<!--
+      <DoubleVectorProperty
+         name="RadiusFactors"
+         label="Radius Factors"
+         command="SetRadiusFactors"
+         number_of_elements="3"
+         animateable="1"
+         default_values="5 5 5" >
+         <Documentation>
+           The Radius Factors of the gaussian (no unit). The radius factors
+           determine how far out the gaussian kernel will go before being
+           clamped to zero.
+         </Documentation>
+      </DoubleVectorProperty>
+-->
+
+   <!-- End ImageGaussianSmooth -->
+
+   </SourceProxy>
+ </ProxyGroup>
+</ServerManagerConfiguration>
+
