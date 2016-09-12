@@ -68,6 +68,17 @@ cd ParaViewSuperbuild
 git checkout v5.1.2
 ```
 
+## Delete the CMake package registry
+
+The package registry is perhaps the worst feature of CMake, since it regularly causes builds
+to fail while making it nearly impossible to diagnose the cause. Before building anything with
+CMake on Linux, delete any possible entries in the package registry with
+
+```sh
+rm -rf ~/.cmake
+```
+
+You should make it a habit to do this every time before running CMake.
 
 ## Configure CMake
 
@@ -178,7 +189,7 @@ export AimIO_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/AimIO-build
 cd ~/code/n88ParaViewPlugins/5.1.2
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
-git checkout v5.1.2
+git checkout v1.0.0
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
 export ParaView_DIR=$HOME/build/ParaViewSuperbuild/v5.1.2/build/paraview/src/paraview-build
@@ -187,5 +198,5 @@ make
 make install
 ```
 
-If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install/lib .
+If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install .
 They can be copied to another system and loaded in ParaView 5.1.2 .
