@@ -19,12 +19,12 @@ You can download old versions of XCode from:
 ​https://developer.apple.com/downloads/index.action?q=xcode ,
 however you need an Apple Developer account.
 
-All versions of Xcode install by default to live at /Applications/Xcode.app ,
+All versions of Xcode install by default to /Applications/Xcode.app ,
 so after I install
 each one, I rename it with the major version number, i.e. /Applications/Xcode4.app
 and /Applications/Xcode6.app .
 
-Then set the one for compiling:
+Set the version of Xcode to be used for compiling:
 
 ```sh
 sudo xcode-select -switch /Applications/Xcode6.app
@@ -35,7 +35,6 @@ Verify with:
 ```sh
 $ clang --version
 Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)
-If you have multiple versions, you can select with:
 ```
 
 ## Install the binary distribution of cmake
