@@ -25,11 +25,11 @@ As a first step, you should check out from the git repository for
 n88ParaViewPlugins a tag corresponding to the exact version of ParaView that you want to compile
 plugins for. As this documentation is part of the source code, you will then get the
 exact instructions for that particular version of ParaView. Instructions are specific
-to the operating system:
+to the operating system, and can be found in the following files:
 
-- [Linux](./Build-Linux.md)
-- [Windows](./Build-Windows.md)
-- [macOS](./Build-Mac.md)
+- [Build-Linux.md](./Build-Linux.md)
+- [Build-Windows.md](./Build-Windows.md)
+- [Build-Mac.md](./Build-Mac.md)
 
 
 ## Authors and Contributors
