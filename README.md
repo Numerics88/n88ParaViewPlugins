@@ -34,8 +34,8 @@ to the operating system, and can be found in the following files:
 
 ## Authors and Contributors
 
-n88ParaViewPlugins was developed by Eric Nodwell (eric.nodwell@numerics88.com) at Numerics88
-Solutions Ltd.
+n88ParaViewPlugins was developed by Eric Nodwell at Numerics88
+Solutions Ltd. Contact skboyd@ucalgary.ca for any questions.
 
 
 ## Licence
