@@ -1,0 +1,8 @@
+NAME
+  N88ModelReaders
+DEPENDS
+  VTK::ImagingCore
+PRIVATE_DEPENDS
+  VTK::CommonCore
+
+

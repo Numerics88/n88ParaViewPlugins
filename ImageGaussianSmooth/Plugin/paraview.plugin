@@ -1,0 +1,6 @@
+NAME
+  ImageGaussianSmooth
+DESCRIPTION
+  Implements a convolution of the input image with a gaussian. Supports from one to three dimensional convolutions.
+REQUIRES_MODULES
+  VTK::IOImage

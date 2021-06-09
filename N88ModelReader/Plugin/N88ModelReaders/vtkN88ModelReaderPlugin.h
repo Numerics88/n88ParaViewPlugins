@@ -19,7 +19,7 @@ class VTK_EXPORT vtkN88ModelReaderPlugin :
 public:
   static vtkN88ModelReaderPlugin* New();
   vtkTypeMacro(vtkN88ModelReaderPlugin,vtkUnstructuredGridAlgorithm);
-  void PrintSelf(ostream& os, vtkIndent indent);
+  void PrintSelf(ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro(FileName);
   vtkGetStringMacro(FileName);
@@ -46,7 +46,7 @@ protected:
 
   int RequestData(vtkInformation *,
                   vtkInformationVector **,
-                  vtkInformationVector *);
+                  vtkInformationVector *) override;
 
   int ReadDataFromNetCDFFile(int ncid, vtkUnstructuredGrid* model);
   int ReadProblem(int ncid, vtkUnstructuredGrid* model);

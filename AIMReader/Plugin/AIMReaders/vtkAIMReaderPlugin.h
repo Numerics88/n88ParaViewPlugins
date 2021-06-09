@@ -27,7 +27,7 @@ class VTK_EXPORT vtkAIMReaderPlugin :
 public:
   static vtkAIMReaderPlugin* New();
   vtkTypeMacro (vtkAIMReaderPlugin,vtkImageAlgorithm);
-  void PrintSelf (ostream& os, vtkIndent indent);
+  void PrintSelf (ostream& os, vtkIndent indent) override;
 
   vtkSetStringMacro (FileName);
   vtkGetStringMacro (FileName);
@@ -50,10 +50,10 @@ protected:
 
   int RequestInformation (vtkInformation* request,
                           vtkInformationVector** inputVector,
-                          vtkInformationVector* outputVector);
+                          vtkInformationVector* outputVector) override;
   int RequestData (vtkInformation*,
                    vtkInformationVector**,
-                   vtkInformationVector*);
+                   vtkInformationVector*) override;
 
   char * FileName;
   int Pad;

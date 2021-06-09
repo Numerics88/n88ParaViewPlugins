@@ -1,0 +1,6 @@
+NAME
+  AIMReader
+DESCRIPTION
+  Read an AIM file. Output is an ImageData.
+REQUIRES_MODULES
+  AimIO
