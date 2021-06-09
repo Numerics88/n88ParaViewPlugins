@@ -187,7 +187,7 @@ cd ~/n88ParaViewPlugins/v5.9.1
 
 ## Build boost
 
-We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate version (e.g. v1.57), so to be safe we grab our own version from here:
+We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate boost version (e.g. v1.57), so to be safe we grab our own version from here:
 
 https://sourceforge.net/projects/boost/files/boost/1.75.0/boost_1_75_0.tar.bz2
 
@@ -255,7 +255,12 @@ cd n88ParaViewPlugins
 git checkout v5.9.1
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
-export ParaView_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/paraview/src/paraview-build
+export ParaView_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/superbuild/paraview/build
+export rkcommon_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/rkcommon-1.5.1/
+export openvkl_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
+export netCDF_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/netCDF
+export nlohmann_json_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/superbuild/nlohmannjson/build/
+export openvkl_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_SHARED_LINKER_FLAGS="-stdlib=libc++" -DCMAKE_INSTALL_PREFIX=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install ../n88ParaViewPlugins
 make
 make install
