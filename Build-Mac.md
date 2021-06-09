@@ -1,6 +1,6 @@
 # Build instructions for macOS
 
-These build instructions are particular to ParaView version 5.1.2 . Checkout a different tag of the source code if you want to build for another version of ParaView.
+These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want to build for another version of ParaView.
 
 Before building the plugins, it is necessary to build ParaView, using the ParaView superbuild,
 in a way such that the plugins build against it will load in the binary distribution of ParaView.
@@ -19,10 +19,8 @@ You can download old versions of XCode from:
 ​https://developer.apple.com/downloads/index.action?q=xcode ,
 however you need an Apple Developer account.
 
-All versions of Xcode install by default to /Applications/Xcode.app ,
-so after I install
-each one, I rename it with the major version number, i.e. /Applications/Xcode4.app
-and /Applications/Xcode6.app .
+All versions of Xcode install by default to /Applications/Xcode.app , so after I install each one, 
+I rename it with the major version number, i.e. /Applications/Xcode4.app and /Applications/Xcode6.app .
 
 Set the version of Xcode to be used for compiling:
 
@@ -36,73 +34,96 @@ Verify with:
 $ clang --version
 Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)
 ```
+But for 2021, I'm using the base installation of Xcode on my system:
 
-## Install the binary distribution of cmake
-
-I used the binary version 3.5.2 from http://cmake.org/cmake/resources/software.html .
-
+```s
+$ clang --version
+Apple clang version 12.0.0 (clang-1200.0.32.27)
+Target: x86_64-apple-darwin19.6.0
+```
 ## Create a case-sensitive file system for building
 
-It seems like a case-sensitive file system is still required. The easiest is to format an additional disk volume as "Mac OS Extended (Case-sensitive, Journaled)" and to compile there. That can be done with this command:
+It seems like a case-sensitive file system is still required. The easiest is to format an additional disk 
+volume as "Mac OS Extended (Case-sensitive, Journaled)" and to compile there. That can be done with this command:
 
 ```sh
+cd ~/Desktop/
 hdiutil create -type SPARSE -fs 'Case-sensitive Journaled HFS+' -size 60g -volname CaseSensitive CaseSensitive.dmg
 ```
 
 And mount it
 
 ```sh
-open CaseSensitive.dmg
+open CaseSensitive.dmg.sparseimage
 ```
 
 Create a working directory
 
 ```sh
 cd /Volumes/CaseSensitive
-mkdir -p build/ParaViewSuperbuild/v5.1.2
-cd build/ParaViewSuperbuild/v5.1.2
+mkdir -p build/ParaViewSuperbuild/v5.9.1
+cd build/ParaViewSuperbuild/v5.9.1
 ```
 
-## Create a working directory somewhere
+## Install the binary distribution of cmake
+
+I used the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
+
+Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
+
+```sh
+$ conda create -n paraview -c conda-forge cmake=3.18 python=3.7
+$ conda activate paraview
+```
+
+## Start with your working directory
 
 You can arrange this however you want of course. Here I only give an example so subsequently
 I can give concrete paths. You will have to change all the paths to your scheme.
 
 ```sh
-mkdir -p ~/build/ParaViewSuperbuild/v5.1.2
-cd ~/build/ParaViewSuperbuild/v5.1.2
+cd /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1
 ```
 
 ## Set a minimal path
 
 ```sh
-export PATH=/Applications/CMake.app/Contents/bin:/usr/bin:/bin:/usr/sbin:/sbin
+export PATH=/Applications/CMake.app/Contents/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 ```
+Or if you used a conda environment:
+
+```sh
+export PATH=/Users/skboyd/.conda/envs/paraview/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
+```
+
+XXX export PATH="/opt/local/bin:/opt/local/sbin:/Users/skboyd/.conda/envs/paraview/bin:/Users/skboyd/miniconda2/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Apple/usr/bin"
 
 ## Get the ParaView Superbuild
 
 ```sh
-git clone git://paraview.org/ParaViewSuperbuild.git
+git clone --recursive https://gitlab.kitware.com/paraview/paraview-superbuild.git
+XXX git clone git://paraview.org/ParaViewSuperbuild.git
 ```
 
 It is very important to get the exact version of ParaView that corresponds to these instructions:
 
 ```sh
-cd ParaViewSuperbuild
-git checkout v5.1.2
+cd paraview-superbuild
+git checkout v5.9.1
+git submodule update
 ```
 
-## Delete the CMake package registry
-
-The package registry is perhaps the worst feature of CMake, since it regularly causes builds
-to fail while making it nearly impossible to diagnose the cause. Before building anything with
-CMake on macOS, delete any possible entries in the package registry with
-
-```sh
-rm -rf ~/.cmake
-```
-
-You should make it a habit to do this every time before running CMake.
+XXX ## Delete the CMake package registry
+XXX 
+XXX The package registry is perhaps the worst feature of CMake, since it regularly causes builds
+XXX to fail while making it nearly impossible to diagnose the cause. Before building anything with
+XXX CMake on macOS, delete any possible entries in the package registry with
+XXX 
+XXX ```sh
+XXX rm -rf ~/.cmake
+XXX ```
+XXX 
+XXX You should make it a habit to do this every time before running CMake.
 
 ## Configure CMake
 
@@ -111,32 +132,37 @@ Create a build directory:
 ```sh
 mkdir ../build
 cd ../build
-ccmake ../ParaViewSuperbuild
+ccmake ../paraview-superbuild
 ```
 
-Configure according to http://www.paraview.org/Wiki/ParaView/Binaries#OsX_.28macOS.29 , with some exceptions and things to note as follows::
+XXX Configure according to http://www.paraview.org/Wiki/ParaView/Binaries#OsX_.28macOS.29 , with some exceptions and things to note as follows::
 
-- I recommend that you set `download_location` to some permanent directory where you store tarballs, so that it doesn't have to download everything every time. Particularly since success on the first
-attempt is rare.
+The following settings are recommended:
+– Set `BUILD_SHARED_LIBS` to `ON` (default).
+- Set `superbuild_download_location` to some permanent directory where you store tarballs.
+- Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.13
+- Set `CMAKE_OSX_SYSROOT` to `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk`
+XXX - Turn `Paraview_FROM_GIT` to `OFF`.
+- Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
+- Set `OFF` for the following (defaults):
+	- `ENABLE_paraviewgettingstartedguide`
+	- `ENABLE_paraviewtutorialdata`
+- Set `ENABLE_ospray` to `ON`. This affects which system libraries everything links to (e.g. netcdf, hdf5, etc).
+- Set `ENABLE_hdf5` to `ON`.
+- Set `ENABLE_netcdf` to `ON`.
 
-- Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.7
+Some further settings that will pop up in subsequent iterations of the configuration process are: 
+- Set `BUILD_TESTING` to `OFF`.
+- Set `USE_SYSTEM_hdf5` to `OFF` (default).
+- Set `USE_SYSTEM_netcdf` to `OFF` (default).
+- Set `USE_SYSTEM_python3` to `OFF` (default).
 
-- Set `CMAKE_OSX_SYSROOT` to `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk`
+XXX - Set up python consistently (not sure if necessary):
+XXX   - `PYTHON_EXECUTABLE` should be `/usr/bin/python2.7`
+XXX   - `PYTHON_INCLUDE_DIR` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/include/python2.7`
+XXX   - `PYTHON_LIBRARY` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/lib/libpython2.7.dylib`
 
-- Turn `Paraview_FROM_GIT` to `OFF`.
-
-- Leave `USE_NONFREE_COMPONENTS` set to `OFF`.
-
-- `ENABLE_paraviewgettingstartedguide`, `ENABLE_paraviewtutorial`, `ENABLE_paraviewtutorialdata`, `ENABLE_paraviewusersguide` can all be `OFF`
-
-- Make sure that `ENABLE_ospray` is `ON`, because it affects what system libraries everything links to.
-
-- Set up python consistently:
-  - `PYTHON_EXECUTABLE` should be `/usr/bin/python2.7`
-  - `PYTHON_INCLUDE_DIR` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/include/python2.7`
-  - `PYTHON_LIBRARY` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/lib/libpython2.7.dylib`
-
-- If something is listed at http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , but the option doesn't show up, ignore it.
+XXX - If something is listed at http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , but the option doesn't show up, ignore it.
 
 ## Build ParaView
 
@@ -146,7 +172,7 @@ caffeinate make
 
 Do not use the -j flag.
 
-Go get a coffee. Or a bottle of wine. Or a long novel. Eventually, if everything works, and you
+Go get a coffee. Or a bottle of wine. Or a long novel. Eventually, if everything works, and you 
 followed the instructions given above exactly, ParaView will build successfully.
 
 ## Create a working directory for building the plugins
@@ -154,79 +180,83 @@ followed the instructions given above exactly, ParaView will build successfully.
 Somewhere to build n88ParaViewPlugins and also its dependencies
 
 ```sh
-mkdir -p ~/code/n88ParaViewPlugins/5.1.2
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /Volumes/CaseSensitive/build
+mkdir -p n88ParaViewPlugins/v5.9.1
+cd ~/n88ParaViewPlugins/v5.9.1
 ```
 
 ## Build boost
 
-We can't use the boost in ParaView 5.1.2, since we require at least version 1.57 of boost.
+We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate version (e.g. v1.57), so to be safe we grab our own version from here:
+
+https://sourceforge.net/projects/boost/files/boost/1.75.0/boost_1_75_0.tar.bz2
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
-tar xvjf boost_1_59_0.tar.bz2
-cd boost_1_59_0
-./bootstrap.sh --with-libraries=filesystem --with-toolset=darwin
-./bjam link=static cflags="-mmacosx-version-min=10.7 -isysroot /Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk" cxxflags="-std=c++11 -stdlib=libc++ -mmacosx-version-min=10.7 -isysroot /Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk" linkflags="-stdlib=libc++ -mmacosx-version-min=10.7 -isysroot /Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk"
-export BOOST_ROOT=$HOME/code/n88ParaViewPlugins/5.1.2/boost_1_59_0
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1
+cp ~/Downloads/boost_1_75_0.tar.bz2 .
+tar xvjf boost_1_75_0.tar.bz2
+cd boost_1_75_0
+./bootstrap.sh --with-libraries=filesystem,system --with-toolset=darwin
+./b2 link=static cflags="-mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk" cxxflags="-std=c++11 -stdlib=libc++ -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk" linkflags="-stdlib=libc++ -mmacosx-version-min=10.13 -isysroot /Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk"
 ```
 
 Tell CMake where to find boost:
 
 ```sh
-export BOOST_ROOT=$HOME/code/n88ParaViewPlugins/5.1.2/boost_1_59_0
+export BOOST_ROOT=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/boost_1_75_0
 ```
 
 ## Build n88util
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88util.git
 cd n88util
 git checkout v2.0.0
 mkdir ../n88util-build
 cd ../n88util-build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 -DCMAKE_OSX_SYSROOT=/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" ../n88util
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" ../n88util
+make
 ```
 
-No need to actually build it, since we only need the headers (and the CMake configuration).
+Actually, there is no need to actually build it, since we only need the headers (and the CMake configuration).
 
 Tell CMake where to find n88util:
 
 ```sh
-export n88util_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/n88util-build
+export n88util_DIR=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88util-build
 ```
 
 ## Build AimIO
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/AimIO.git
 cd AimIO
 git checkout v1.0.0
 mkdir ../AimIO-build
 cd ../AimIO-build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 -DCMAKE_OSX_SYSROOT=/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" ../AimIO
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" ../AimIO
 make
 ```
 
 Tell CMake where to find AimIO:
 
 ```sh
-export AimIO_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/AimIO-build
+export AimIO_DIR=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/AimIO-build
 ```
 
 ## Build n88ParaViewPlugins
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
-git checkout v5.1.2-1
+git checkout v5.9.1
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
-export ParaView_DIR=$HOME/build/ParaViewSuperbuild/v5.1.2/build/paraview/src/paraview-build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.7 -DCMAKE_OSX_SYSROOT=/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_SHARED_LINKER_FLAGS="-stdlib=libc++" -DCMAKE_INSTALL_PREFIX=$HOME/code/n88ParaViewPlugins/5.1.2/install ../n88ParaViewPlugins
+export ParaView_DIR=/Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build/paraview/src/paraview-build
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_OSX_SYSROOT=/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk -DCMAKE_CXX_FLAGS="-std=c++11 -stdlib=libc++" -DCMAKE_SHARED_LINKER_FLAGS="-stdlib=libc++" -DCMAKE_INSTALL_PREFIX=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install ../n88ParaViewPlugins
 make
 make install
 ```
@@ -235,10 +265,10 @@ make install
 
 ```sh
 cd ../install/lib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.1.2/build libAIMReader.dylib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.1.2/build libN88ModelReader.dylib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.1.2/build libImageGaussianSmooth.dylib
+../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libAIMReader.dylib
+../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libN88ModelReader.dylib
+../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libImageGaussianSmooth.dylib
 ```
 
-If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install/lib .
-They can be copied to another system and loaded in ParaView 5.1.2 .
+If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/v5.9.1/install/lib .
+They can be copied to another system and loaded in ParaView 5.9.1 .
