@@ -245,15 +245,15 @@ make install
 The dynamic linked libraries need some repair, so we use a script to fix the .so files:
 
 ```sh
-cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/ImageGaussianSmooth
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/ImageGaussianSmooth
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
   /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build ImageGaussianSmooth.so
 
-cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/AIMReader
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/AIMReader
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
   /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build AIMReader.so
 
-cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/N88ModelReader
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/N88ModelReader
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
   /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build N88ModelReader.so
 ```
@@ -263,9 +263,10 @@ They can be copied to another system and loaded in ParaView 5.9.1 .
 
 ## Create an archive for distribution
 
-Try something like this to create the archive after you move the .so files to the ~/Downloads folder:
+Try something like this to create the archive after you move the .so files to the ~/Downloads folder from 
 
 ```sh
+cp /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/*/*.so ~/Downloads
 cd ~/Downloads
 mkdir -p Numerics88/Plugins/ParaView-5.9
 cp *.so Numerics88/Plugins/ParaView-5.9
