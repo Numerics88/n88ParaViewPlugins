@@ -96,13 +96,10 @@ Or if you used a conda environment:
 export PATH=/Users/skboyd/.conda/envs/paraview/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 ```
 
-XXX export PATH="/opt/local/bin:/opt/local/sbin:/Users/skboyd/.conda/envs/paraview/bin:/Users/skboyd/miniconda2/condabin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/X11/bin:/Library/Apple/usr/bin"
-
 ## Get the ParaView Superbuild
 
 ```sh
 git clone --recursive https://gitlab.kitware.com/paraview/paraview-superbuild.git
-XXX git clone git://paraview.org/ParaViewSuperbuild.git
 ```
 
 It is very important to get the exact version of ParaView that corresponds to these instructions:
@@ -113,18 +110,6 @@ git checkout v5.9.1
 git submodule update
 ```
 
-XXX ## Delete the CMake package registry
-XXX 
-XXX The package registry is perhaps the worst feature of CMake, since it regularly causes builds
-XXX to fail while making it nearly impossible to diagnose the cause. Before building anything with
-XXX CMake on macOS, delete any possible entries in the package registry with
-XXX 
-XXX ```sh
-XXX rm -rf ~/.cmake
-XXX ```
-XXX 
-XXX You should make it a habit to do this every time before running CMake.
-
 ## Configure CMake
 
 Create a build directory:
@@ -134,15 +119,11 @@ mkdir ../build
 cd ../build
 ccmake ../paraview-superbuild
 ```
-
-XXX Configure according to http://www.paraview.org/Wiki/ParaView/Binaries#OsX_.28macOS.29 , with some exceptions and things to note as follows::
-
 The following settings are recommended:
 – Set `BUILD_SHARED_LIBS` to `ON` (default).
 - Set `superbuild_download_location` to some permanent directory where you store tarballs.
 - Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.13
 - Set `CMAKE_OSX_SYSROOT` to `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk`
-XXX - Turn `Paraview_FROM_GIT` to `OFF`.
 - Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
 - Set `OFF` for the following (defaults):
 	- `ENABLE_paraviewgettingstartedguide`
@@ -156,13 +137,6 @@ Some further settings that will pop up in subsequent iterations of the configura
 - Set `USE_SYSTEM_hdf5` to `OFF` (default).
 - Set `USE_SYSTEM_netcdf` to `OFF` (default).
 - Set `USE_SYSTEM_python3` to `OFF` (default).
-
-XXX - Set up python consistently (not sure if necessary):
-XXX   - `PYTHON_EXECUTABLE` should be `/usr/bin/python2.7`
-XXX   - `PYTHON_INCLUDE_DIR` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/include/python2.7`
-XXX   - `PYTHON_LIBRARY` should be `/Applications/Xcode4.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX10.7.sdk/usr/lib/libpython2.7.dylib`
-
-XXX - If something is listed at http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , but the option doesn't show up, ignore it.
 
 ## Build ParaView
 
@@ -269,11 +243,33 @@ make install
 ## Fix linking for plugins
 
 ```sh
-cd ../install/lib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libAIMReader.dylib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libN88ModelReader.dylib
-../../n88ParaViewPlugins/fix_osx_libraries.sh /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build libImageGaussianSmooth.dylib
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/ImageGaussianSmooth
+/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
+	ImageGaussianSmooth.so
+
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/AIMReader
+/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
+	AIMReader.so
+
+cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/N88ModelReader
+/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
+	N88ModelReader.so
 ```
 
-If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/v5.9.1/install/lib .
-They can be copied to another system and loaded in ParaView 5.9.1 .
+If everything worked correctly, the plugins will be in /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/ .
+They can be copied to another system and loaded in ParaView 5.9.1 . Try something like this to create the archive:
+
+```sh
+cd ~/Downloads
+tar -cvjSf n88ParaViewPlugins-5.9.1-Mac.tar.bz2 ./AIMReader.so ./ImageGaussianSmooth.so ./N88ModelReader.so
+```
+
+Then you can extract the archive like this:
+
+```sh
+tar xvfj n88ParaViewPlugins-5.9.1-Mac.tar.bz2
+```
+
