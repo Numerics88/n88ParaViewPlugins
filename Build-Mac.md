@@ -267,7 +267,9 @@ Try something like this to create the archive after you move the .so files to th
 
 ```sh
 cd ~/Downloads
-tar -cvjSf n88ParaViewPlugins-5.9.1-Mac.tar.bz2 ./AIMReader.so ./ImageGaussianSmooth.so ./N88ModelReader.so
+mkdir -p Numerics88/Plugins/ParaView-5.9
+cp *.so Numerics88/Plugins/ParaView-5.9
+tar -cvjSf n88ParaViewPlugins-5.9.1-Mac.tar.bz2 ./Numerics88
 ```
 
 Then you can extract the archive like this:
