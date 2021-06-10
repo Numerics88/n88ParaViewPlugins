@@ -13,9 +13,9 @@ which then successfully load in ParaView 5.1.2 on macOS 10.10 .
 
 ## Get Xcode
 
-You need two versions of Xcode: version 6.4 for the compiler (version 7 will not work)
-and version 4.6 for the SDK.
-You can download old versions of XCode from:
+You used to need two versions of Xcode: version 6.4 for the compiler (version 7 will not work)
+and version 4.6 for the SDK. However, this issue seems to be resolved now (9-JUN-2021). Just in
+case you can download old versions of XCode from:
 ​https://developer.apple.com/downloads/index.action?q=xcode ,
 however you need an Apple Developer account.
 
@@ -34,7 +34,7 @@ Verify with:
 $ clang --version
 Apple LLVM version 6.1.0 (clang-602.0.53) (based on LLVM 3.6.0svn)
 ```
-But for 2021, I'm using the base installation of Xcode on my system:
+But for 2021, I'm not doing any of the above and instead using the base installation of Xcode on my system:
 
 ```s
 $ clang --version
@@ -67,7 +67,7 @@ cd build/ParaViewSuperbuild/v5.9.1
 
 ## Install the binary distribution of cmake
 
-I used the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
+You can install the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
 
 Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
 
@@ -90,7 +90,7 @@ cd /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1
 ```sh
 export PATH=/Applications/CMake.app/Contents/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
 ```
-Or if you used a conda environment:
+Or if you used a `conda` environment:
 
 ```sh
 export PATH=/Users/skboyd/.conda/envs/paraview/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/bin
@@ -144,7 +144,7 @@ Some further settings that will pop up in subsequent iterations of the configura
 caffeinate make
 ```
 
-Do not use the -j flag.
+Do not use the `-j` flag.
 
 Go get a coffee. Or a bottle of wine. Or a long novel. Eventually, if everything works, and you 
 followed the instructions given above exactly, ParaView will build successfully.
@@ -193,7 +193,7 @@ cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_OSX_DEPLOYMENT_TARGET=10.13 -DCMAKE_OSX
 make
 ```
 
-Actually, there is no need to actually build it, since we only need the headers (and the CMake configuration).
+Actually, there is no need to actually build it, since we only need the headers (and the CMake configuration). I make it out of habit.
 
 Tell CMake where to find n88util:
 
@@ -242,6 +242,8 @@ make install
 
 ## Fix linking for plugins
 
+The dynamic linked libraries need some repair, so we use a script to fix the .so files:
+
 ```sh
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/ImageGaussianSmooth
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
@@ -260,7 +262,11 @@ cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-bui
 ```
 
 If everything worked correctly, the plugins will be in /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/ .
-They can be copied to another system and loaded in ParaView 5.9.1 . Try something like this to create the archive:
+They can be copied to another system and loaded in ParaView 5.9.1 . 
+
+## Create an archive for distribution
+
+Try something like this to create the archive after you move the .so files to the ~/Downloads folder:
 
 ```sh
 cd ~/Downloads
