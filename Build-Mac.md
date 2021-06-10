@@ -247,18 +247,15 @@ The dynamic linked libraries need some repair, so we use a script to fix the .so
 ```sh
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/ImageGaussianSmooth
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
-  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
-	ImageGaussianSmooth.so
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build ImageGaussianSmooth.so
 
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/AIMReader
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
-  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
-	AIMReader.so
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build AIMReader.so
 
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins-build/lib/paraview-5.9/plugins/N88ModelReader
 /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/fix_osx_libraries.sh \
-  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build \
-	N88ModelReader.so
+  /Volumes/CaseSensitive/build/ParaViewSuperbuild/v5.9.1/build N88ModelReader.so
 ```
 
 If everything worked correctly, the plugins will be in /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/ .
