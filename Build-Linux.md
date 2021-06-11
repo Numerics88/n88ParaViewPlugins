@@ -37,8 +37,12 @@ You can install the binary version 3.18.4 from http://cmake.org/cmake/resources/
 Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
 
 ```sh
-$ conda create -n paraview -c conda-forge cmake=3.18 python=3.7
-$ conda activate paraview
+wget https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh
+wget https://repo.continuum.io/archive/Anaconda3-2021.05-Linux-x86_64.sh
+bash Anaconda3-2021.05-Linux-x86_64.sh
+
+conda create -n paraview -c conda-forge cmake=3.18 python=3.7
+conda activate paraview
 ```
 
 ## Required packages for ParaView Superbuild
