@@ -1,9 +1,11 @@
 # Build instructions for Linux
 
-These build instructions are particular to ParaView version 5.1.2 . Checkout a different tag of the source code if you want to build for another version of ParaView.
+These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want to build for another version of ParaView.
 
 Before building the plugins, it is necessary to build ParaView, using the ParaView superbuild,
 in a way such that the plugins build against it will load in the binary distribution of ParaView.
+
+I built on TheGNU (CentOs Linux v7).
 
 ## Build on Debian 7
 
@@ -26,9 +28,18 @@ sudo apt-get install virtualbox
 
 The standard system gcc (version 4.7.2) for Debian 7 is fine: you don't need to use gcc 4.8 as long as you follow the instructions below.
 
+These instructions above are from building 5.1.2 (i.e. old), and for 5.9.1 I've built using CentOs v7.
+
 ## Install the binary distribution of cmake
 
-I used the Linux binary version 3.5.2 from http://cmake.org/cmake/resources/software.html .
+You can install the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
+
+Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
+
+```sh
+$ conda create -n paraview -c conda-forge cmake=3.18 python=3.7
+$ conda activate paraview
+```
 
 ## Required packages for ParaView Superbuild
 
@@ -38,47 +49,35 @@ The following command should install all the required packages on Debian 7:
 sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev freeglut3-dev subversion libxmu-dev libxi-dev gfortran libxt-dev libxrender-dev doxygen
 ```
 
-## Create a working directory somewhere
+## Start with your working directory
 
 You can arrange this however you want of course. Here I only give an example so subsequently
 I can give concrete paths. You will have to change all the paths to your scheme.
 
 ```sh
-mkdir -p ~/build/ParaViewSuperbuild/v5.1.2
-cd ~/build/ParaViewSuperbuild/v5.1.2
+cd /home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1
 ```
 
 ## Set a minimal path and a library search path
 
 ```sh
-export PATH=/opt/cmake-3.5.2-Linux-x86_64/bin:/usr/local/bin:/usr/local/bin:/usr/bin:/bin
-export LD_LIBRARY_PATH=$HOME/build/ParaViewSuperbuild/v5.1.2/build/install/lib:$HOME/build/ParaViewSuperbuild/v5.1.2/build/qt/src/qt-build/lib
+export PATH=/home/fem/anaconda2/envs/faim-devel/bin:/home/fem/anaconda2/bin:/home/fem/anaconda2/condabin:/usr/bin:/usr/sbin
+export LD_LIBRARY_PATH=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib:/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/qt/src/qt-build/lib
 ```
 
 ## Get the ParaView Superbuild
 
 ```sh
-git clone git://paraview.org/ParaViewSuperbuild.git
+git clone --recursive https://gitlab.kitware.com/paraview/paraview-superbuild.git
 ```
 
 It is very important to get the exact version of ParaView that corresponds to these instructions:
 
 ```sh
-cd ParaViewSuperbuild
-git checkout v5.1.2
+cd paraview-superbuild
+git checkout v5.9.1
+git submodule update
 ```
-
-## Delete the CMake package registry
-
-The package registry is perhaps the worst feature of CMake, since it regularly causes builds
-to fail while making it nearly impossible to diagnose the cause. Before building anything with
-CMake on Linux, delete any possible entries in the package registry with
-
-```sh
-rm -rf ~/.cmake
-```
-
-You should make it a habit to do this every time before running CMake.
 
 ## Configure CMake
 
@@ -87,23 +86,27 @@ Create a build directory:
 ```sh
 mkdir ../build
 cd ../build
-ccmake ../ParaViewSuperbuild
+ccmake ../paraview-superbuild
 ```
+The following settings are recommended:
+– Set `BUILD_SHARED_LIBS` to `ON` (default).
+- Set `superbuild_download_location` to some permanent directory where you store tarballs.
+- Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.13
+- Set `CMAKE_OSX_SYSROOT` to `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk`
+- Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
+- Set `OFF` for the following (defaults):
+	- `ENABLE_paraviewgettingstartedguide`
+	- `ENABLE_paraviewtutorialdata`
+- Set `ENABLE_python3` to `ON`.
+- Set `ENABLE_ospray` to `OFF`. Not sure why this won't build; maybe GCC version related.
+- Set `ENABLE_hdf5` to `ON`.
+- Set `ENABLE_netcdf` to `ON`.
 
-Configure according to http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , with some exceptions and things to note as follows::
-
-- I recommend that you set `download_location` to some permanent directory where you store tarballs, so that it doesn't have to download everything every time. Particularly since success on the first
-attempt is rare.
-
-- Turn `Paraview_FROM_GIT` to `OFF`.
-
-- Leave `USE_NONFREE_COMPONENTS` set to `OFF`.
-
-- `ENABLE_paraviewgettingstartedguide`, `ENABLE_paraviewtutorial`, `ENABLE_paraviewtutorialdata`, `ENABLE_paraviewusersguide` can all be `OFF`
-
-- Set `ENABLE_ospray` to `OFF`, because it wants at least gcc 4.8
-
-- If something is listed at http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 , but the option doesn't show up, ignore it.
+Some further settings that will pop up in subsequent iterations of the configuration process are: 
+- Set `BUILD_TESTING` to `OFF`.
+- Set `USE_SYSTEM_hdf5` to `OFF` (default).
+- Set `USE_SYSTEM_netcdf` to `OFF` (default).
+- Set `USE_SYSTEM_python3` to `OFF` (default).
 
 
 ## Build ParaView
@@ -122,52 +125,56 @@ followed the instructions given above exactly, ParaView will build successfully.
 Somewhere to build n88ParaViewPlugins and also its dependencies
 
 ```sh
-mkdir -p ~/code/n88ParaViewPlugins/5.1.2
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /home/fem/faim-devel/build
+mkdir -p n88ParaViewPlugins/v5.9.1
+cd n88ParaViewPlugins/v5.9.1
 ```
 
 ## Build boost
 
-We can't use the boost in ParaView 5.1.2, since we require at least version 1.57 of boost.
+We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate boost version (e.g. v1.57), so to be safe we grab our own version from here:
+
+https://sourceforge.net/projects/boost/files/boost/1.75.0/boost_1_75_0.tar.bz2
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
-tar xvjf boost_1_59_0.tar.bz2
-cd boost_1_59_0
-./bootstrap.sh --with-libraries=filesystem
-./bjam link=static
+cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
+cp ~/boost_1_75_0.tar.bz2 .
+tar xvjf boost_1_75_0.tar.bz2
+cd boost_1_75_0
+./bootstrap.sh --with-libraries=filesystem,system --with-toolset=darwin
+./b2 link=static
 ```
 
 Tell CMake where to find boost:
 
 ```sh
-export BOOST_ROOT=$HOME/code/n88ParaViewPlugins/5.1.2/boost_1_59_0
-```
+export BOOST_ROOT=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/boost_1_75_0
 
 ## Build n88util
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88util.git
 cd n88util
 git checkout v2.0.0
 mkdir ../n88util-build
 cd ../n88util-build
 cmake -DCMAKE_BUILD_TYPE=Release ../n88util
+make
 ```
 
-No need to actually build it, since we only need the headers (and the CMake configuration).
+Actually, there is no need to actually build it, since we only need the headers (and the CMake configuration). I make it out of habit.
 
 Tell CMake where to find n88util:
 
 ```sh
-export n88util_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/n88util-build
+export n88util_DIR=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/n88util-build
 ```
 
 ## Build AimIO
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/AimIO.git
 cd AimIO
 git checkout v1.0.0
@@ -180,20 +187,26 @@ make
 Tell CMake where to find AimIO:
 
 ```sh
-export AimIO_DIR=$HOME/code/n88ParaViewPlugins/5.1.2/AimIO-build
+export AimIO_DIR=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/AimIO-build
 ```
 
 ## Build n88ParaViewPlugins
 
 ```sh
-cd ~/code/n88ParaViewPlugins/5.1.2
+cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
-git checkout v1.0.0
+git checkout v5.9.1
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
-export ParaView_DIR=$HOME/build/ParaViewSuperbuild/v5.1.2/build/paraview/src/paraview-build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=$HOME/code/n88ParaViewPlugins/5.1.2/install ../n88ParaViewPlugins
+export ParaView_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/superbuild/paraview/build
+export rkcommon_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/rkcommon-1.5.1/
+export openvkl_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
+export netCDF_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/netCDF
+export nlohmann_json_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/superbuild/nlohmannjson/build/
+export openvkl_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
+export PYTHON_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/bin/python3.8
+cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/build/install ../n88ParaViewPlugins
 make
 make install
 ```
