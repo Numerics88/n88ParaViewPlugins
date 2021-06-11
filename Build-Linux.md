@@ -141,7 +141,7 @@ cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
 cp ~/boost_1_75_0.tar.bz2 .
 tar xvjf boost_1_75_0.tar.bz2
 cd boost_1_75_0
-./bootstrap.sh --with-libraries=filesystem,system --with-toolset=darwin
+./bootstrap.sh --with-libraries=filesystem,timer,chrono,program_options,date_time,thread,system,atomic --with-toolset=darwin
 ./b2 link=static
 ```
 
