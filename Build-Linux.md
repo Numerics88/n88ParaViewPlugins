@@ -30,20 +30,68 @@ The standard system gcc (version 4.7.2) for Debian 7 is fine: you don't need to 
 
 These instructions above are from building 5.1.2 (i.e. old), and for 5.9.1 I've built using CentOs v7.
 
-## Install the binary distribution of cmake
+## Create a virtual machine
+
+I created a virtual machine on AWS at aws.amazon.com. You could try and install Paraview on it. 
+This is only useful for testing whether we can load the final plugins. To build
+the plugins we need the source code as well.
+
+```sh
+wget https://www.paraview.org/files/v5.9/ParaView-5.9.1-MPI-Linux-Python3.8-64bit.tar.gz
+```
+You can install packages on the virtual machine with commands like this:
+```sh
+sudo apt-get update
+sudo apt-get install -y gcc
+sudo apt-get install -y libgl1-mesa-glx
+sudo apt-get install -y libxcursor-dev
+sudo apt-get install -y qt5-default
+```
+Or remove packages:
+```sh
+sudo apt-get remove libgl1* 
+sudo apt-get remove libxcursor* 
+sudo apt-get remove qt5* 
+sudo apt autoremove
+```
+
+But here is one command that gets everything we need:
+```sh
+sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev freeglut3-dev subversion libxmu-dev libxi-dev gfortran libxt-dev libxrender-dev doxygen
+```
+
+You will likely be using a free virtual machine, in which case you have limited RAM. A fix is
+to pay for more RAM, or you can create some swap space:
+
+```sh
+sudo fallocate -l 1G /swapfile 
+sudo chmod 600 /swapfile 
+sudo mkswap /swapfile 
+sudo swapon /swapfile 
+sudo cp /etc/fstab /etc/fstab.bak 
+echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```
+
+## Install cmake
 
 You can install the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
 
 Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
 
 ```sh
-wget https://repo.continuum.io/archive/Anaconda2-4.1.1-Linux-x86_64.sh
-wget https://repo.continuum.io/archive/Anaconda3-2021.05-Linux-x86_64.sh
-bash Anaconda3-2021.05-Linux-x86_64.sh
+wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
+bash ~/Miniconda3-latest-Linux-x86_64.sh
+source .bashrc
+conda update conda
+rm ~/Miniconda3-latest-Linux-x86_64.sh
+```
 
-conda create -n paraview -c conda-forge cmake=3.18 python=3.7
+Create your environment:
+```sh
+conda create -n paraview -c conda-forge cmake=3.18 python=3.8
 conda activate paraview
 ```
+
 
 ## Required packages for ParaView Superbuild
 
