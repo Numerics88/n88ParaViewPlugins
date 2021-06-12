@@ -240,3 +240,22 @@ make install
 
 If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install .
 They can be copied to another system and loaded in ParaView 5.1.2 .
+
+## Create an archive for distribution
+
+Try something like this to create the archive after you move the .so files to the ~/Downloads folder from 
+
+```sh
+mkdir -p ~/Downloads
+cp /home/ubuntu/code/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/*/*.so ~/Downloads
+cd ~/Downloads
+mkdir -p Numerics88/Plugins/ParaView-5.9
+cp *.so Numerics88/Plugins/ParaView-5.9
+tar -cvjSf n88ParaViewPlugins-5.9.1-Linux.tar.bz2 ./Numerics88
+```
+
+Then you can extract the archive like this:
+
+```sh
+tar xvfj n88ParaViewPlugins-5.9.1-Linux.tar.bz2
+```
