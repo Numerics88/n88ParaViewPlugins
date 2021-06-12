@@ -93,9 +93,8 @@ cd ~/build/ParaViewSuperbuild/v5.9.1
 
 ```sh
 export PATH=/home/fem/anaconda2/envs/faim-devel/bin:/home/fem/anaconda2/bin:/home/fem/anaconda2/condabin:/usr/bin:/usr/sbin
-export LD_LIBRARY_PATH=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib:/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/qt/src/qt-build/lib
+export LD_LIBRARY_PATH=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib:/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/qt/src/qt-build/lib
 ```
-
 ## Get the ParaView Superbuild
 
 ```sh
@@ -154,9 +153,8 @@ followed the instructions given above exactly, ParaView will build successfully.
 Somewhere to build n88ParaViewPlugins and also its dependencies
 
 ```sh
-cd /home/fem/faim-devel/build
-mkdir -p n88ParaViewPlugins/v5.9.1
-cd n88ParaViewPlugins/v5.9.1
+mkdir -p ~/code/n88ParaViewPlugins/v5.9.1
+cd ~/code/n88ParaViewPlugins/v5.9.1
 ```
 
 ## Build boost
@@ -166,7 +164,7 @@ We probably can use the boost in ParaView 5.9.1, but previous ParaView versions 
 https://sourceforge.net/projects/boost/files/boost/1.75.0/boost_1_75_0.tar.bz2
 
 ```sh
-cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
+cd ~/code/n88ParaViewPlugins/v5.9.1
 cp ~/boost_1_75_0.tar.bz2 .
 tar xvjf boost_1_75_0.tar.bz2
 cd boost_1_75_0
@@ -175,14 +173,14 @@ cd boost_1_75_0
 ```
 
 Tell CMake where to find boost:
-
 ```sh
-export BOOST_ROOT=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/boost_1_75_0
+export BOOST_ROOT=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/boost_1_75_0
+```
 
 ## Build n88util
 
 ```sh
-cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
+cd ~/code/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88util.git
 cd n88util
 git checkout v2.0.0
@@ -197,13 +195,13 @@ Actually, there is no need to actually build it, since we only need the headers 
 Tell CMake where to find n88util:
 
 ```sh
-export n88util_DIR=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/n88util-build
+export n88util_DIR=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/n88util-build
 ```
 
 ## Build AimIO
 
 ```sh
-cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
+cd ~/code/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/AimIO.git
 cd AimIO
 git checkout v1.0.0
@@ -216,25 +214,25 @@ make
 Tell CMake where to find AimIO:
 
 ```sh
-export AimIO_DIR=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/AimIO-build
+export AimIO_DIR=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/AimIO-build
 ```
 
 ## Build n88ParaViewPlugins
 
 ```sh
-cd /home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1
+cd ~/code/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
 mkdir ../n88ParaViewPlugins-build
 cd ../n88ParaViewPlugins-build
-export ParaView_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/superbuild/paraview/build
-export rkcommon_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/rkcommon-1.5.1/
-export openvkl_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
-export netCDF_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/netCDF
-export nlohmann_json_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/superbuild/nlohmannjson/build/
-export openvkl_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
-export PYTHON_DIR=/home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1/build/install/bin/python3.8
+export ParaView_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/superbuild/paraview/build
+export rkcommon_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/rkcommon-1.5.1/
+export openvkl_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
+export netCDF_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/netCDF
+export nlohmann_json_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/superbuild/nlohmannjson/build/
+export openvkl_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
+export PYTHON_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/bin/python3.8
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/build/install ../n88ParaViewPlugins
 make
 make install
