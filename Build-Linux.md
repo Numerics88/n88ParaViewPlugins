@@ -39,29 +39,16 @@ the plugins we need the source code as well.
 ```sh
 wget https://www.paraview.org/files/v5.9/ParaView-5.9.1-MPI-Linux-Python3.8-64bit.tar.gz
 ```
-You can install packages on the virtual machine with commands like this:
+You may need to update apt:
 ```sh
 sudo apt-get update
-sudo apt-get install -y gcc
-sudo apt-get install -y libgl1-mesa-glx
-sudo apt-get install -y libxcursor-dev
-sudo apt-get install -y qt5-default
 ```
-Or remove packages:
-```sh
-sudo apt-get remove libgl1* 
-sudo apt-get remove libxcursor* 
-sudo apt-get remove qt5* 
-sudo apt autoremove
-```
-
-But here is one command that gets everything we need:
+This command gets everything we need:
 ```sh
 sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev freeglut3-dev subversion libxmu-dev libxi-dev gfortran libxt-dev libxrender-dev doxygen
 ```
-
-You will likely be using a free virtual machine, in which case you have limited RAM. A fix is
-to pay for more RAM, or you can create some swap space:
+If using a free virtual machine it may have limited RAM. A fix is
+to pay for more RAM, or you can create swap space:
 
 ```sh
 sudo fallocate -l 1G /swapfile 
@@ -92,22 +79,14 @@ conda create -n paraview -c conda-forge cmake=3.18 python=3.8
 conda activate paraview
 ```
 
-
-## Required packages for ParaView Superbuild
-
-The following command should install all the required packages on Debian 7:
-
-```sh
-sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev freeglut3-dev subversion libxmu-dev libxi-dev gfortran libxt-dev libxrender-dev doxygen
-```
-
 ## Start with your working directory
 
 You can arrange this however you want of course. Here I only give an example so subsequently
 I can give concrete paths. You will have to change all the paths to your scheme.
 
 ```sh
-cd /home/fem/faim-devel/build/ParaViewSuperbuild/v5.9.1
+mkdir -p ~/build/ParaViewSuperbuild/v5.9.1
+cd ~/build/ParaViewSuperbuild/v5.9.1
 ```
 
 ## Set a minimal path and a library search path
@@ -143,8 +122,6 @@ ccmake ../paraview-superbuild
 The following settings are recommended:
 – Set `BUILD_SHARED_LIBS` to `ON` (default).
 - Set `superbuild_download_location` to some permanent directory where you store tarballs.
-- Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.13
-- Set `CMAKE_OSX_SYSROOT` to `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX11.0.sdk`
 - Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
 - Set `OFF` for the following (defaults):
 	- `ENABLE_paraviewgettingstartedguide`
