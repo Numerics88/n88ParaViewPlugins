@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(N88ModelReader)
 
+find_package(ParaView REQUIRED)
+
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
 include(GNUInstallDirs)
