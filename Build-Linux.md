@@ -1,6 +1,6 @@
 # Build instructions for Linux
 
-These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want 
+These build instructions are particular to ParaView version 5.9.1 . Check out a different tag of the source code if you want 
 to build for another version of ParaView.
 
 There is a very handy Git repository that helps build the plugins. I've tried to do it without this tool, but wasn't 
@@ -9,9 +9,7 @@ successful. The method available in the repository is very slick:
 https://gitlab.kitware.com/paraview/paraview-plugin-builder/tree/master
 ```
 In general, first build ParaView. Then build the plugins against it. The build has to be *exactly* the same as how 
-the distributed ParaView is built. That's what makes it so tricky.
-
-I built on TheGNU (CentOs Linux v7).
+the distributed binary ParaView is built. That's what makes it so tricky.
 
 ## Build on CentOS Linux 7
 
@@ -29,7 +27,7 @@ ami-0686851c4e7b1a8e1
 
 Launch a t2.xlarge (4 CPUs, 16 GiB) and configure with default details except including 50GB of data (possibly smaller is OK, but 
 it's a pain when running out of disk space during the build). Choose an existing key pair or use an old one if you already created
-one for AWS. Name your EC2 instance (e.g. "paraview").
+one for AWS. You might want to name your EC2 instance (e.g. "paraview").
 
 The machine is described here as:
 
@@ -67,7 +65,7 @@ You'll need *docker* and there is information about it here:
 ```s
 https://docs.docker.com/engine/install/centos/
 ```
-You need to install *docker* and configure it:
+Install *docker* and configure it:
 ```s
 sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
 sudo yum install -y yum-utils
@@ -79,14 +77,18 @@ Make it so you can run as *sudo* while you are user *centos*:
 ```s
 sudo groupadd docker
 sudo usermod -aG docker centos
-docker run hello-world # do this after logging out and back in for changes to take effect
+```
+Log out and back in for the changes to take effect. Then test that all is working properly:
+```s
+docker run hello-world
 ```
 
 ## Build ParaView
 Now that the AWS machine is ready, start building. I use the '-f' option as we need boost to be built
-if we're going to build the AIMReader plugin.
+if we're going to build the AIMReader plugin. At this time there is only 5.9.0 available as an option with the plugin builder, but it should be
+compatible with all v5.9 builds (until it isn't).
 ```s
-cd paraview-plugin-builder
+cd ~/paraview-plugin-builder
 ./run_build_paraview.sh -c 7 -f v5.9.0
 ```
 Patience...
@@ -103,24 +105,25 @@ cd n88ParaViewPlugins
 git checkout v5.9.1
 ```
 
-Once everything is in place, you simply build each of the plugins by running the script. 
+Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 
+easiest to build to hardest. AIMReader requires n88util and AimIO to build, so it takes more time.
 ```s
 cd /home/centos/paraview-plugin-builder
-./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/AIMReader v5.9.0
-./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/N88ModelReader v5.9.0
 ./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/ImageGaussianSmooth v5.9.0
+./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/N88ModelReader v5.9.0
+./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/AIMReader v5.9.0
 ```
 If successful (I hope!) they will be located in 'home/centos/paraview-plugin-builder/output'. You should see the .so plugins.
 
 ## Create an archive for distribution
 
-Try something like this to create the archive after you move the .so files to the ~/Downloads folder from 
+Move the .so files to a file structure that is standard for n88:
 
 ```sh
 mkdir -p ~/Numerics88/Plugins/ParaView-5.9
 cp /home/centos/paraview-plugin-builder/output/*.so ~/Numerics88/Plugins/ParaView-5.9
 cd ~
-tar -cvjSf n88ParaViewPlugins-5.9.1-Linux.tar.bz2 ./Numerics88
+tar -cvf n88ParaViewPlugins-5.9.1-Linux.tar.bz2 ./Numerics88
 ```
 
 Then you can extract the archive like this:
@@ -129,7 +132,8 @@ Then you can extract the archive like this:
 tar xvfj n88ParaViewPlugins-5.9.1-Linux.tar.bz2
 ```
 
-Test the plugins on a system that has ParaView 5.9 running. If you need to see some verbose output you can run ParaView as follows:
+Test the plugins on a system that has ParaView 5.9 running. If you need to see verbose output as you
+load a plugin you can launch ParaView as follows:
 ```sh
 $ env PARAVIEW_LOG_PLUGIN_VERBOSITY=0 ./paraview
 ```
