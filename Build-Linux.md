@@ -1,256 +1,125 @@
 # Build instructions for Linux
 
-These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want to build for another version of ParaView.
+These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want 
+to build for another version of ParaView.
 
-Before building the plugins, it is necessary to build ParaView, using the ParaView superbuild,
-in a way such that the plugins build against it will load in the binary distribution of ParaView.
+There is a very handy Git repository that helps build the plugins. I've tried to do it without this tool, but wasn't 
+successful. The method available in the repository is very slick:
+```s
+https://gitlab.kitware.com/paraview/paraview-plugin-builder/tree/master
+```
+In general, first build ParaView. Then build the plugins against it. The build has to be *exactly* the same as how 
+the distributed ParaView is built. That's what makes it so tricky.
 
 I built on TheGNU (CentOs Linux v7).
 
-## Build on Debian 7
+## Build on CentOS Linux 7
 
-I have not successfully built ParaView on Debian 6, as claimed on
-http://www.paraview.org/Wiki/ParaView/Binaries#Linux-x64 . However, Debian 7 works. And judging by
-the system libraries that the binary distribution of ParaView links against, I believe that Kitware
-does also in fact use Debian 7.
+The easiest way to do this is to take advantage of Amazon's AWS service. There is information about CentOS
+on AWS here:
 
-It might also be possible to use a newer distro of Linux, but then the plugins will be linked
-against more recent versions of the standard system libraries, and can't be used with older
-distros.
-
-Since Debian 7 is probably not your day-to-day installation of Linux, he easiest thing is to run
-Debian 7 inside a virtual machine using Virtual Box. See https://www.virtualbox.org/ . On Ubuntu
-Linux for example, you can install Virtual Box with
-
-```sh
-sudo apt-get install virtualbox
+```s
+https://wiki.centos.org/Cloud/AWS
+```
+Go to aws.amazon.com to launch an EC2 using a pre-defined AMI. To launch it select AIMs from the panel 
+on the left, then click "Owned by me" and select "Public images" to choose the correct AMI: 
+```s
+ami-0686851c4e7b1a8e1
 ```
 
-The standard system gcc (version 4.7.2) for Debian 7 is fine: you don't need to use gcc 4.8 as long as you follow the instructions below.
+Launch a t2.xlarge (4 CPUs, 16 GiB) and configure with default details except including 50GB of data (possibly smaller is OK, but 
+it's a pain when running out of disk space during the build). Choose an existing key pair or use an old one if you already created
+one for AWS. Name your EC2 instance (e.g. "paraview").
 
-These instructions above are from building 5.1.2 (i.e. old), and for 5.9.1 I've built using CentOs v7.
+The machine is described here as:
 
-## Create a virtual machine
-
-I created a virtual machine on AWS at aws.amazon.com. You could try and install Paraview on it. 
-This is only useful for testing whether we can load the final plugins. To build
-the plugins we need the source code as well.
-
-```sh
-wget https://www.paraview.org/files/v5.9/ParaView-5.9.1-MPI-Linux-Python3.8-64bit.tar.gz
-```
-You may need to update apt:
-```sh
-sudo apt-get update
-```
-This command gets everything we need:
-```sh
-sudo apt-get install build-essential libstdc++6 libc6-dev-i386 libglu1-mesa-dev freeglut3-dev subversion libxmu-dev libxi-dev gfortran libxt-dev libxrender-dev doxygen
-```
-If using a free virtual machine it may have limited RAM. A fix is
-to pay for more RAM, or you can create swap space:
-
-```sh
-sudo fallocate -l 1G /swapfile 
-sudo chmod 600 /swapfile 
-sudo mkswap /swapfile 
-sudo swapon /swapfile 
-sudo cp /etc/fstab /etc/fstab.bak 
-echo '/swapfile none swap sw 0 0' | sudo tee -a /etc/fstab
+```s
+CentOS Linux 7
+7.9.2009
+us-west-2
+ami-0686851c4e7b1a8e1
+x86_64
 ```
 
-## Install cmake
+Accessing the EC2 instance is possible using SSH and SCP:
 
-You can install the binary version 3.18.4 from http://cmake.org/cmake/resources/software.html .
-
-Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
-
-```sh
-wget https://repo.continuum.io/miniconda/Miniconda3-latest-Linux-x86_64.sh
-bash ~/Miniconda3-latest-Linux-x86_64.sh
-source .bashrc
-conda update conda
-rm ~/Miniconda3-latest-Linux-x86_64.sh
+```s
+ssh -Y -i "/Users/sboyd/.ssh/paraview-aws.pem" centos@ec2-25-88-246-65.us-west-2.compute.amazonaws.com
+scp -i "/Users/sboyd/.ssh/paraview-aws.pem" test.txt centos@ec2-25-88-246-65.us-west-2.compute.amazonaws.com:/home/centos
+scp -i "/Users/sboyd/.ssh/paraview-aws.pem" centos@ec2-25-88-246-65.us-west-2.compute.amazonaws.com:/home/centos/n88ParaViewPlugins-5.9.1-Linux.tar.bz2 .
 ```
 
-Create your environment:
-```sh
-conda create -n paraview -c conda-forge cmake=3.18 python=3.8
-conda activate paraview
+Set up your machine with some basic tools (GIT, wget):
+```s
+sudo yum install git
+sudo yum install wget
+```
+You're ready to start building.
+
+## Install paraview-plugin-builder
+
+Go to the home directory of your machine and then grab the plugin builder:
+```s
+git clone https://gitlab.kitware.com/paraview/paraview-plugin-builder.git
 ```
 
-## Start with your working directory
-
-You can arrange this however you want of course. Here I only give an example so subsequently
-I can give concrete paths. You will have to change all the paths to your scheme.
-
-```sh
-mkdir -p ~/build/ParaViewSuperbuild/v5.9.1
-cd ~/build/ParaViewSuperbuild/v5.9.1
+You'll need *docker* and there is information about it here:
+```s
+https://docs.docker.com/engine/install/centos/
 ```
-
-## Set a minimal path and a library search path
-
-```sh
-export PATH=/home/fem/anaconda2/envs/faim-devel/bin:/home/fem/anaconda2/bin:/home/fem/anaconda2/condabin:/usr/bin:/usr/sbin
-export LD_LIBRARY_PATH=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib:/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/qt/src/qt-build/lib
+You need to install *docker* and configure it:
+```s
+sudo yum remove docker docker-client docker-client-latest docker-common docker-latest docker-latest-logrotate docker-logrotate docker-engine
+sudo yum install -y yum-utils
+sudo yum-config-manager --add-repo https://download.docker.com/linux/centos/docker-ce.repo
+sudo yum install docker-ce docker-ce-cli containerd.io
+sudo systemctl start docker
 ```
-## Get the ParaView Superbuild
-
-```sh
-git clone --recursive https://gitlab.kitware.com/paraview/paraview-superbuild.git
+Make it so you can run as *sudo* while you are user *centos*:
+```s
+sudo groupadd docker
+sudo usermod -aG docker centos
+docker run hello-world # do this after logging out and back in for changes to take effect
 ```
-
-It is very important to get the exact version of ParaView that corresponds to these instructions:
-
-```sh
-cd paraview-superbuild
-git checkout v5.9.1
-git submodule update
-```
-
-## Configure CMake
-
-Create a build directory:
-
-```sh
-mkdir ../build
-cd ../build
-ccmake ../paraview-superbuild
-```
-The following settings are recommended:
-– Set `BUILD_SHARED_LIBS` to `ON` (default).
-- Set `superbuild_download_location` to some permanent directory where you store tarballs.
-- Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
-- Set `OFF` for the following (defaults):
-	- `ENABLE_paraviewgettingstartedguide`
-	- `ENABLE_paraviewtutorialdata`
-- Set `ENABLE_python3` to `ON`.
-- Set `ENABLE_ospray` to `OFF`. Not sure why this won't build; maybe GCC version related.
-- Set `ENABLE_hdf5` to `ON`.
-- Set `ENABLE_netcdf` to `ON`.
-
-Some further settings that will pop up in subsequent iterations of the configuration process are: 
-- Set `BUILD_TESTING` to `OFF`.
-- Set `USE_SYSTEM_hdf5` to `OFF` (default).
-- Set `USE_SYSTEM_netcdf` to `OFF` (default).
-- Set `USE_SYSTEM_python3` to `OFF` (default).
-
 
 ## Build ParaView
-
-```sh
-make
+Now that the AWS machine is ready, start building. I use the '-f' option as we need boost to be built
+if we're going to build the AIMReader plugin.
+```s
+cd paraview-plugin-builder
+./run_build_paraview.sh -c 7 -f v5.9.0
 ```
+Patience...
 
-Do not use the -j flag.
+## Build the plugins
 
-Go get a coffee. Or a bottle of wine. Or a long novel. Eventually, if everything works, and you
-followed the instructions given above exactly, ParaView will build successfully.
+Make a directory to build your plugins and grab the repository:
 
-## Create a working directory for building the plugins
-
-Somewhere to build n88ParaViewPlugins and also its dependencies
-
-```sh
+```s
 mkdir -p ~/code/n88ParaViewPlugins/v5.9.1
-cd ~/code/n88ParaViewPlugins/v5.9.1
-```
-
-## Build boost
-
-We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate boost version (e.g. v1.57), so to be safe we grab our own version from here:
-
-https://sourceforge.net/projects/boost/files/boost/1.75.0/boost_1_75_0.tar.bz2
-
-```sh
-cd ~/code/n88ParaViewPlugins/v5.9.1
-cp ~/boost_1_75_0.tar.bz2 .
-tar xvjf boost_1_75_0.tar.bz2
-cd boost_1_75_0
-./bootstrap.sh --with-libraries=filesystem,timer,chrono,program_options,date_time,thread,system,atomic --with-toolset=darwin
-./b2 link=static
-```
-
-Tell CMake where to find boost:
-```sh
-export BOOST_ROOT=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/boost_1_75_0
-```
-
-## Build n88util
-
-```sh
-cd ~/code/n88ParaViewPlugins/v5.9.1
-git clone https://github.com/Numerics88/n88util.git
-cd n88util
-git checkout v2.0.0
-mkdir ../n88util-build
-cd ../n88util-build
-cmake -DCMAKE_BUILD_TYPE=Release ../n88util
-make
-```
-
-Actually, there is no need to actually build it, since we only need the headers (and the CMake configuration). I make it out of habit.
-
-Tell CMake where to find n88util:
-
-```sh
-export n88util_DIR=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/n88util-build
-```
-
-## Build AimIO
-
-```sh
-cd ~/code/n88ParaViewPlugins/v5.9.1
-git clone https://github.com/Numerics88/AimIO.git
-cd AimIO
-git checkout v1.0.0
-mkdir ../AimIO-build
-cd ../AimIO-build
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC ../AimIO
-make
-```
-
-Tell CMake where to find AimIO:
-
-```sh
-export AimIO_DIR=/home/ubuntu/code/n88ParaViewPlugins/v5.9.1/AimIO-build
-```
-
-## Build n88ParaViewPlugins
-
-```sh
 cd ~/code/n88ParaViewPlugins/v5.9.1
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
-mkdir ../n88ParaViewPlugins-build
-cd ../n88ParaViewPlugins-build
-export ParaView_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/superbuild/paraview/build
-export rkcommon_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/rkcommon-1.5.1/
-export openvkl_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
-export netCDF_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/netCDF
-export nlohmann_json_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/superbuild/nlohmannjson/build/
-export openvkl_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/lib/cmake/openvkl-0.11.0/
-export PYTHON_DIR=/home/ubuntu/build/ParaViewSuperbuild/v5.9.1/build/install/bin/python3.8
-cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_INSTALL_PREFIX=/home/fem/faim-devel/build/n88ParaViewPlugins/v5.9.1/build/install ../n88ParaViewPlugins
-make
-make install
 ```
 
-If everything worked correctly, the plugins will be in $HOME/code/n88ParaViewPlugins/5.1.2/install .
-They can be copied to another system and loaded in ParaView 5.1.2 .
+Once everything is in place, you simply build each of the plugins by running the script. 
+```s
+cd /home/centos/paraview-plugin-builder
+./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/AIMReader v5.9.0
+./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/N88ModelReader v5.9.0
+./run_build_plugin.sh -d /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/ImageGaussianSmooth v5.9.0
+```
+If successful (I hope!) they will be located in 'home/centos/paraview-plugin-builder/output'. You should see the .so plugins.
 
 ## Create an archive for distribution
 
 Try something like this to create the archive after you move the .so files to the ~/Downloads folder from 
 
 ```sh
-mkdir -p ~/Downloads
-cp /home/ubuntu/code/n88ParaViewPlugins/v5.9.1/install/lib/paraview-5.9/plugins/*/*.so ~/Downloads
-cd ~/Downloads
-mkdir -p Numerics88/Plugins/ParaView-5.9
-cp *.so Numerics88/Plugins/ParaView-5.9
+mkdir -p ~/Numerics88/Plugins/ParaView-5.9
+cp /home/centos/paraview-plugin-builder/output/*.so ~/Numerics88/Plugins/ParaView-5.9
+cd ~
 tar -cvjSf n88ParaViewPlugins-5.9.1-Linux.tar.bz2 ./Numerics88
 ```
 
@@ -259,3 +128,9 @@ Then you can extract the archive like this:
 ```sh
 tar xvfj n88ParaViewPlugins-5.9.1-Linux.tar.bz2
 ```
+
+Test the plugins on a system that has ParaView 5.9 running. If you need to see some verbose output you can run ParaView as follows:
+```sh
+$ env PARAVIEW_LOG_PLUGIN_VERBOSITY=0 ./paraview
+```
+
