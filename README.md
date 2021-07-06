@@ -7,10 +7,10 @@ n88model file formats are provided.
 
 ## Using
 
-We recommend that if possible you get pre-build binaries from http://numerics88.com/downloads .
+We recommend that if possible you get pre-build binaries from https://bonelab.github.io/n88/downloads .
 
 Instructions for loading the plugins into ParaView can be found in the Faim manual
-available at http://numerics88.com/documentation .
+available at https://bonelab.github.io/n88/documentation .
 
 ## Building
 

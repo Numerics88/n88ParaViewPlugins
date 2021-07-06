@@ -1,6 +1,8 @@
 cmake_minimum_required(VERSION 3.8)
 project(AIMReader)
 
+find_package(ParaView REQUIRED)
+
 # Requires n88util
 find_package (n88util 2.0 REQUIRED)
 include_directories (${N88UTIL_INCLUDE_DIRS})
