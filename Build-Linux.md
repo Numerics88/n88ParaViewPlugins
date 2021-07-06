@@ -104,12 +104,8 @@ git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
 ```
-There is a file in paraview-plugin-builder called 'plugin.cmake' that provides necessary instructions for 
-building the plugins (particularly the AIMReader). Copy it from the n88ParaViewPlugins repository into the
-paraview-plugins-builder repository:
-```s
-cp /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/plugin.cmake /home/centos/paraview-plugin-builder/
-```
+There is a horrible hack in 'n88ParaViewPlugins/AIMReader/Plugin/AIMReaders/CMakeLists.txt' that was necessary 
+to build AIMReader.so. If somebody can show me how to not hardcode this library, please let me know!
 
 Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 
 easiest to build to hardest. AIMReader requires n88util and AimIO to build, so it takes more time.
