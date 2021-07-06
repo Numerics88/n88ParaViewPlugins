@@ -107,6 +107,8 @@ git checkout v5.9.1
 There is a horrible hack in 'n88ParaViewPlugins/AIMReader/Plugin/AIMReaders/CMakeLists.txt' that was necessary 
 to build AIMReader.so. If somebody can show me how to not hardcode this library, please let me know!
 
+Make sure that N88_BUILD_APPLE is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
+
 Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 
 easiest to build to hardest. AIMReader requires n88util and AimIO to build, so it takes more time.
 ```s
