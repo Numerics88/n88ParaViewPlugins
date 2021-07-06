@@ -32,7 +32,7 @@ else()
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
 	list (APPEND project_cmake_params -DBoost_INCLUDE_DIR:PATH=${Boost_DIR}/../../../include)
 	list (APPEND project_cmake_params -DBoost_DIR:PATH=${Boost_DIR})
-	
+	message(STATUS ">>> Boost_DIR = ${Boost_DIR}")
 	set(n88util_cmake_params)
 	
 	set(aimio_cmake_params)
@@ -48,6 +48,12 @@ else()
 	  INSTALL_DIR ${stage_location}
 		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params}
 	)
+	# set (n88util_cmake_params
+	#   -Dn88util_DIR:PATH=${stage_location}/lib/cmake/n88util-${n88util_soversion}
+	#   CACHE INTERNAL "cmake parameters for using n88util")
+  # 
+	# ExternalProject_Get_Property(n88util source_dir)
+	# include_directories(${source_dir}/include/)
 	
 	# AimIO
 	set (aimio_soversion 1.0)
@@ -59,6 +65,19 @@ else()
 	  INSTALL_DIR ${stage_location}
 	  CMAKE_ARGS ${project_cmake_params} ${aimio_cmake_params}
 	  )
+	# set (aimio_cmake_params
+	#   -DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}
+	#   CACHE INTERNAL "cmake parameters for using aimio")
+  # 
+	# add_definitions ("-DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}")
+
+	ExternalProject_Get_Property(aimio install_dir)
+	include_directories(${install_dir}/include/)
+
+#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/lib/libAimIO.so
+#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/include/AimIO
+#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/include/AimIO/AimIO.h
+	
 endif()
 
 include(GNUInstallDirs)
