@@ -34,10 +34,66 @@ else()
 	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=OFF)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
 	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
-	list (APPEND project_cmake_params -DBoost_INCLUDE_DIR:PATH=${Boost_DIR}/../../../include)
-	list (APPEND project_cmake_params -DBoost_DIR:PATH=${Boost_DIR})
 
-	# n88util
+	# message(STATUS ">>> Checking the boost build:")
+	# find_program(LS ls)
+	# if (LS)
+	# 	message(STATUS ">>> Boost_DIR: ${LS} -l ${Boost_DIR}")
+	# 	execute_process(COMMAND ${LS} -l ${Boost_DIR})
+	# endif()
+
+	# boost ------------------------------------------------------------------------------------------
+	set(boost_version 1.75.0)
+	set (extra_bootstrap_commands)
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	  set (extra_bootstrap_commands --with-toolset=darwin)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+	  set (extra_bootstrap_commands --with-toolset=intel-linux)
+	endif()
+	
+	set (extra_build_commands)
+	list (APPEND extra_build_commands variant=release)
+  list (APPEND extra_build_commands link=static)
+  list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
+	if (CMAKE_OSX_DEPLOYMENT_TARGET)
+	  list (APPEND extra_build_commands cflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+	                                    cxxflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+	                                    linkflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+	endif()
+		
+	ExternalProject_Add (boost
+	  URL "https://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_1_75_0.tar.bz2"
+	  URL_HASH SHA256=953db31e016db7bb207f11432bef7df100516eeb746843fa0486a222e3fd49cb
+	  PREFIX boost
+	  DOWNLOAD_DIR ${download_location}
+	  INSTALL_DIR ${stage_location}
+	  BUILD_IN_SOURCE 1
+	  CONFIGURE_COMMAND
+	    <SOURCE_DIR>/bootstrap.sh
+	                      --prefix=${stage_location}
+	                      --with-libraries=filesystem,system,thread
+	                      ${extra_bootstrap_commands}
+	  BUILD_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	                      ${extra_build_commands}
+	  INSTALL_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	                      ${extra_build_commands}
+	                      install
+	  )
+	set(boost_target boost CACHE INTERNAL "Boost target")
+	set(release_suffix "")
+  set(lib_ext a)
+	set(boost_cmake_params)
+	set(boost_cmake_params
+  	-DBoost_INCLUDE_DIR:PATH=${stage_location}/include
+  	-DBoost_FILESYSTEM_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_filesystem${release_suffix}.${lib_ext}
+  	-DBoost_FILESYSTEM_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_filesystem${debug_suffix}.${lib_ext}
+  	-DBoost_SYSTEM_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_system${release_suffix}.${lib_ext}
+  	-DBoost_SYSTEM_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_system${debug_suffix}.${lib_ext}
+	  -DBoost_THREAD_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_thread${release_suffix}.${lib_ext}
+	  -DBoost_THREAD_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_thread${debug_suffix}.${lib_ext}
+	CACHE INTERNAL "cmake parameters for using boost")
+
+	# n88util ----------------------------------------------------------------------------------------
 	set(n88util_cmake_params)
 	set(n88util_soversion 2.0)
 	ExternalProject_Add (n88util
@@ -46,10 +102,10 @@ else()
 	  PREFIX n88util
 	  DEPENDS ${boost_target}
 	  INSTALL_DIR ${stage_location}
-		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params}
+		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params} ${boost_cmake_params}
 	)
 	
-	# AimIO
+	# AimIO ------------------------------------------------------------------------------------------
 	set(aimio_cmake_params)
 	list (APPEND aimio_cmake_params -DN88_BUILD_AIX:BOOL=OFF)
 	set(aimio_soversion 1.0)
@@ -59,7 +115,7 @@ else()
 	  PREFIX aimio
 	  DEPENDS n88util ${boost_target}
 	  INSTALL_DIR ${stage_location}
-	  CMAKE_ARGS ${project_cmake_params} ${aimio_cmake_params}
+	  CMAKE_ARGS ${project_cmake_params} ${aimio_cmake_params} ${boost_cmake_params}
 	  )
 	# set (aimio_cmake_params
 	#   -DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}
