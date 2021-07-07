@@ -6,6 +6,9 @@ find_package(ParaView REQUIRED)
 add_definitions ("-DN88_BUILD_AS_PARAVIEW_PLUGIN")
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
+# For MacOS we usually build n88util, AimIO and Boost separately,
+# but for Linux we need to build them in one step due to the use
+# of the paraview-plugin-builder
 option(N88_BUILD_APPLE "Build plugin for MacOS" OFF)
 
 if (N88_BUILD_APPLE)
@@ -28,18 +31,15 @@ else()
 	set(stage_location "${CMAKE_CURRENT_BINARY_DIR}/stage")
 	
 	set(project_cmake_params)
-	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=ON)
+	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=OFF)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
+	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
 	list (APPEND project_cmake_params -DBoost_INCLUDE_DIR:PATH=${Boost_DIR}/../../../include)
 	list (APPEND project_cmake_params -DBoost_DIR:PATH=${Boost_DIR})
-	message(STATUS ">>> Boost_DIR = ${Boost_DIR}")
-	set(n88util_cmake_params)
-	
-	set(aimio_cmake_params)
-	list (APPEND aimio_cmake_params -DN88_BUILD_AIX:BOOL=OFF)
-	
+
 	# n88util
-	set (n88util_soversion 2.0)
+	set(n88util_cmake_params)
+	set(n88util_soversion 2.0)
 	ExternalProject_Add (n88util
 	  GIT_REPOSITORY "https://github.com/Numerics88/n88util.git"
 	  UPDATE_DISCONNECTED ${UPDATE_DISCONNECTED}
@@ -48,15 +48,11 @@ else()
 	  INSTALL_DIR ${stage_location}
 		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params}
 	)
-	# set (n88util_cmake_params
-	#   -Dn88util_DIR:PATH=${stage_location}/lib/cmake/n88util-${n88util_soversion}
-	#   CACHE INTERNAL "cmake parameters for using n88util")
-  # 
-	# ExternalProject_Get_Property(n88util source_dir)
-	# include_directories(${source_dir}/include/)
 	
 	# AimIO
-	set (aimio_soversion 1.0)
+	set(aimio_cmake_params)
+	list (APPEND aimio_cmake_params -DN88_BUILD_AIX:BOOL=OFF)
+	set(aimio_soversion 1.0)
 	ExternalProject_Add (aimio
 	  GIT_REPOSITORY "https://github.com/Numerics88/AimIO.git"
 	  UPDATE_DISCONNECTED ${UPDATE_DISCONNECTED}
@@ -68,16 +64,11 @@ else()
 	# set (aimio_cmake_params
 	#   -DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}
 	#   CACHE INTERNAL "cmake parameters for using aimio")
-  # 
-	# add_definitions ("-DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}")
 
 	ExternalProject_Get_Property(aimio install_dir)
 	include_directories(${install_dir}/include/)
+	link_directories(${install_dir}/lib/)
 
-#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/lib/libAimIO.so
-#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/include/AimIO
-#	-- Installing: /home/buildslave/misc/code/plugin/build/stage/include/AimIO/AimIO.h
-	
 endif()
 
 include(GNUInstallDirs)

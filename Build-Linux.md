@@ -11,6 +11,19 @@ https://gitlab.kitware.com/paraview/paraview-plugin-builder/tree/master
 In general, first build ParaView. Then build the plugins against it. The build has to be *exactly* the same as how 
 the distributed binary ParaView is built. That's what makes it so tricky.
 
+Check your mental health before you try and build these plugins...
+
+## Learn more about plugins
+The C++ documentation contains dedicated pages:
+https://kitware.github.io/paraview-docs/latest/cxx/PluginHowto.html
+https://kitware.github.io/paraview-docs/latest/cxx/PluginMigration.html
+https://kitware.github.io/paraview-docs/latest/cxx/index.html
+
+The source code contains many plugin examples.
+https://gitlab.kitware.com/paraview/paraview/-/tree/master/Examples/Plugins
+
+The wiki used to be the official resources but it is being phased out.
+
 ## Build on CentOS Linux 7
 
 The easiest way to do this is to take advantage of Amazon's AWS service. There is information about CentOS
@@ -104,9 +117,6 @@ git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
 ```
-There is a horrible hack in 'n88ParaViewPlugins/AIMReader/Plugin/AIMReaders/CMakeLists.txt' that was necessary 
-to build AIMReader.so. If somebody can show me how to not hardcode this library, please let me know!
-
 Make sure that N88_BUILD_APPLE is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
 
 Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 

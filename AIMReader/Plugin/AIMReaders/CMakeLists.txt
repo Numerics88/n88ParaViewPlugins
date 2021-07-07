@@ -9,10 +9,10 @@ vtk_module_add_module(AIMReaders
 paraview_add_server_manager_xmls(
   XMLS  AIMReader.xml)
 
+# This ensures AimIO is built before AIMReaders
 add_dependencies(AIMReaders aimio)
 
-# I cheated and replaced AimIO with hard-coded path to shared library:
-# /home/buildslave/misc/code/plugin/build/stage/lib/libAimIO.so
-# On CentOs I couldn't figure out how to set the AimIO library properly, so this is my hack!
-# target_link_libraries (AIMReaders PUBLIC /home/buildslave/misc/code/plugin/build/stage/lib/libAimIO.so Boost::system)
 target_link_libraries (AIMReaders PUBLIC AimIO Boost::system)
+
+
+
