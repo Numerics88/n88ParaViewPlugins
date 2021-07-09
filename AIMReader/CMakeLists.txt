@@ -41,7 +41,7 @@ else()
 	# 	message(STATUS ">>> Boost_DIR: ${LS} -l ${Boost_DIR}")
 	# 	execute_process(COMMAND ${LS} -l ${Boost_DIR})
 	# endif()
-
+	
 	# boost ------------------------------------------------------------------------------------------
 	set(boost_version 1.75.0)
 	set (extra_bootstrap_commands)
@@ -53,8 +53,8 @@ else()
 	
 	set (extra_build_commands)
 	list (APPEND extra_build_commands variant=release)
-  list (APPEND extra_build_commands link=static)
-  list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
+	list (APPEND extra_build_commands link=static)
+	list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
 	if (CMAKE_OSX_DEPLOYMENT_TARGET)
 	  list (APPEND extra_build_commands cflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
 	                                    cxxflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
@@ -70,7 +70,7 @@ else()
 	  BUILD_IN_SOURCE 1
 	  CONFIGURE_COMMAND
 	    <SOURCE_DIR>/bootstrap.sh
-	                      --prefix=${stage_location}
+	                      --prefix=<INSTALL_DIR>
 	                      --with-libraries=filesystem,system,thread
 	                      ${extra_bootstrap_commands}
 	  BUILD_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
@@ -81,17 +81,9 @@ else()
 	  )
 	set(boost_target boost CACHE INTERNAL "Boost target")
 	set(release_suffix "")
-  set(lib_ext a)
+	set(lib_ext a)
 	set(boost_cmake_params)
-	set(boost_cmake_params
-  	-DBoost_INCLUDE_DIR:PATH=${stage_location}/include
-  	-DBoost_FILESYSTEM_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_filesystem${release_suffix}.${lib_ext}
-  	-DBoost_FILESYSTEM_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_filesystem${debug_suffix}.${lib_ext}
-  	-DBoost_SYSTEM_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_system${release_suffix}.${lib_ext}
-  	-DBoost_SYSTEM_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_system${debug_suffix}.${lib_ext}
-	  -DBoost_THREAD_LIBRARY_RELEASE:FILEPATH=${stage_location}/lib/libboost_thread${release_suffix}.${lib_ext}
-	  -DBoost_THREAD_LIBRARY_DEBUG:FILEPATH=${stage_location}/lib/libboost_thread${debug_suffix}.${lib_ext}
-	CACHE INTERNAL "cmake parameters for using boost")
+	list(APPEND boost_cmake_params -DBoost_INCLUDE_DIR:PATH=${stage_location}/include CACHE INTERNAL "cmake parameters for using boost")
 
 	# n88util ----------------------------------------------------------------------------------------
 	set(n88util_cmake_params)
@@ -102,7 +94,7 @@ else()
 	  PREFIX n88util
 	  DEPENDS ${boost_target}
 	  INSTALL_DIR ${stage_location}
-		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params} ${boost_cmake_params}
+	  CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params} ${boost_cmake_params}
 	)
 	
 	# AimIO ------------------------------------------------------------------------------------------

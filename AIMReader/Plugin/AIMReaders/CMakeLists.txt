@@ -12,7 +12,8 @@ paraview_add_server_manager_xmls(
 # This ensures AimIO is built before AIMReaders
 add_dependencies(AIMReaders aimio)
 
-target_link_libraries (AIMReaders PUBLIC AimIO Boost::system)
+#target_link_libraries (AIMReaders PUBLIC AimIO Boost::system)
+target_link_libraries (AIMReaders PUBLIC AimIO)
 
 
 

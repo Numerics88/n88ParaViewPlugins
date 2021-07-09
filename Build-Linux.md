@@ -98,15 +98,12 @@ docker run hello-world
 
 ## Build ParaView
 Now that the AWS machine is ready, start building. 
-I used the '-f' option as we need boost to be built if we're going to build the AIMReader plugin; however,
-I realized that the shared libraries in the ParaView build aren't sufficient. So, I'm building boost as per 
-the instructions in the AIMReader/CMakeLists.txt file. Perhaps the '-f' option isn't required (which would be
-much faster!).
+
 At this time there is only 5.9.0 available as an option with the plugin builder, but it should be
 compatible with all v5.9 builds (until it isn't).
 ```s
 cd ~/paraview-plugin-builder
-./run_build_paraview.sh -c 7 -f v5.9.0
+./run_build_paraview.sh -c 7 v5.9.0
 ```
 Patience...
 
