@@ -6,12 +6,12 @@ find_package(ParaView REQUIRED)
 add_definitions ("-DN88_BUILD_AS_PARAVIEW_PLUGIN")
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
-# For MacOS we usually build n88util, AimIO and Boost separately,
-# but for Linux we need to build them in one step due to the use
-# of the paraview-plugin-builder
-option(N88_BUILD_APPLE "Build plugin for MacOS" OFF)
+# We used to build the dependencies separately, but it is convenient to be able 
+# to build them all in a single command, especially on Linux for paraview-plugin-builder. 
+# Only turn N88_BUILD_PACKAGES to ON if neccessary.
+option(N88_BUILD_PACKAGES "Build dependencies for the plugins separately." OFF)
 
-if (N88_BUILD_APPLE)
+if (N88_BUILD_PACKAGES)
   # Requires n88util
   find_package (n88util 2.0 REQUIRED)
   include_directories (${N88UTIL_INCLUDE_DIRS})

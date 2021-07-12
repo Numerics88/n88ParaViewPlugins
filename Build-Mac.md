@@ -172,6 +172,10 @@ mkdir -p n88ParaViewPlugins/v5.9.1
 cd ~/n88ParaViewPlugins/v5.9.1
 ```
 
+The next three steps build boost, n88util and aimio. None of those are necessary anymore
+as those packages can be built automatically as part of the cmake process. So, skip ahead
+to the section on "Build n88ParaViewPlugins" unless you really want to build those packages
+separately (if so, in AIMReader/CMakeLists.txt make sure that N88_BUILD_PACKAGES=ON)
 ## Build boost
 
 We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate boost version (e.g. v1.57), so to be safe we grab our own version from here:

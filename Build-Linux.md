@@ -118,7 +118,7 @@ git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
 ```
-Make sure that N88_BUILD_APPLE is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
+Make sure that N88_BUILD_PACKAGES is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
 
 Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 
 easiest to build to hardest. AIMReader requires n88util and AimIO to build, so it takes more time.
