@@ -239,7 +239,7 @@ export AimIO_DIR=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/AimIO-bu
 
 ## Build n88ParaViewPlugins
 
-Make sure that N88_BUILD_APPLE is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
+Make sure that N88_BUILD_PACKAGES is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
 
 ```sh
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1
