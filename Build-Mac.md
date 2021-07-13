@@ -1,10 +1,23 @@
 # Build instructions for macOS
 
-These build instructions are particular to ParaView version 5.9.1 . Checkout a different tag of the source code if you want to build for another version of ParaView.
+These build instructions are particular to ParaView version 5.9.1 . 
+Checkout a different tag of the source code if you want to build for another version of ParaView.
 
 Before building the plugins, it is necessary to build ParaView, using the ParaView superbuild,
 in a way such that the plugins build against it will load in the binary distribution of ParaView.
 
+Check your mental health before you try and build these plugins...
+
+## Learn more about plugins
+The C++ documentation contains dedicated pages:
+https://kitware.github.io/paraview-docs/latest/cxx/PluginHowto.html
+https://kitware.github.io/paraview-docs/latest/cxx/PluginMigration.html
+https://kitware.github.io/paraview-docs/latest/cxx/index.html
+
+The source code contains many plugin examples.
+https://gitlab.kitware.com/paraview/paraview/-/tree/master/Examples/Plugins
+
+The wiki used to be the official resources but it is being phased out.
 ## Choice of macOS version
 
 On macOS, as long as you use the right version of Xcode, it does not matter what version
@@ -159,6 +172,10 @@ mkdir -p n88ParaViewPlugins/v5.9.1
 cd ~/n88ParaViewPlugins/v5.9.1
 ```
 
+The next three steps build boost, n88util and aimio. None of those are necessary anymore
+as those packages can be built automatically as part of the cmake process. So, skip ahead
+to the section on "Build n88ParaViewPlugins" unless you really want to build those packages
+separately (if so, in AIMReader/CMakeLists.txt make sure that N88_BUILD_PACKAGES=ON)
 ## Build boost
 
 We probably can use the boost in ParaView 5.9.1, but previous ParaView versions did not have an appropriate boost version (e.g. v1.57), so to be safe we grab our own version from here:
@@ -221,6 +238,8 @@ export AimIO_DIR=/Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1/AimIO-bu
 ```
 
 ## Build n88ParaViewPlugins
+
+Make sure that N88_BUILD_APPLE is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
 
 ```sh
 cd /Volumes/CaseSensitive/build/n88ParaViewPlugins/v5.9.1

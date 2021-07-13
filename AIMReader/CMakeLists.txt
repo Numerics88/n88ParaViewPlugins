@@ -6,24 +6,23 @@ find_package(ParaView REQUIRED)
 add_definitions ("-DN88_BUILD_AS_PARAVIEW_PLUGIN")
 option(BUILD_SHARED_LIBS "Build shared libraries" ON)
 
-set(N88_BUILD_LINUX OFF)
+# We used to build the dependencies separately, but it is convenient to be able 
+# to build them all in a single command, especially on Linux for paraview-plugin-builder. 
+# Only turn N88_BUILD_PACKAGES to ON if neccessary.
+option(N88_BUILD_PACKAGES "Build dependencies for the plugins separately." OFF)
 
-if (NOT N88_BUILD_LINUX)
+if (N88_BUILD_PACKAGES)
   # Requires n88util
   find_package (n88util 2.0 REQUIRED)
   include_directories (${N88UTIL_INCLUDE_DIRS})
-  #message(STATUS "*** N88UTIL_INCLUDE_DIRS is set to ${N88UTIL_INCLUDE_DIRS}")
   
   # Requires AimIO
   find_package (AimIO 1.0 REQUIRED)
   include_directories (${AIMIO_INCLUDE_DIRS})
-  #message(STATUS "*** AIMIO_INCLUDE_DIRS is set to ${AIMIO_INCLUDE_DIRS}")
-  # 
+   
   # Requires Boost
   find_package (Boost 1.61.0 COMPONENTS filesystem system REQUIRED)
   include_directories (${Boost_INCLUDE_DIR})
-  #message(STATUS "********* Boost_INCLUDE_DIR is set to ${Boost_INCLUDE_DIR}")
-  #message(STATUS "********* Boost_DIR is set to ${Boost_DIR}")
 
 else()
 	include(ExternalProject)
@@ -32,37 +31,92 @@ else()
 	set(stage_location "${CMAKE_CURRENT_BINARY_DIR}/stage")
 	
 	set(project_cmake_params)
-	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=ON)
+	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=OFF)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
-	list (APPEND project_cmake_params -DBoost_INCLUDE_DIR:PATH=${Boost_DIR}/../../../include)
-	list (APPEND project_cmake_params -DBoost_DIR:PATH=${Boost_DIR})
+	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
+
+	# message(STATUS ">>> Checking the boost build:")
+	# find_program(LS ls)
+	# if (LS)
+	# 	message(STATUS ">>> Boost_DIR: ${LS} -l ${Boost_DIR}")
+	# 	execute_process(COMMAND ${LS} -l ${Boost_DIR})
+	# endif()
 	
+	# boost ------------------------------------------------------------------------------------------
+	set(boost_version 1.75.0)
+	set (extra_bootstrap_commands)
+	if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	  set (extra_bootstrap_commands --with-toolset=darwin)
+	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
+	  set (extra_bootstrap_commands --with-toolset=intel-linux)
+	endif()
+	
+	set (extra_build_commands)
+	list (APPEND extra_build_commands variant=release)
+	list (APPEND extra_build_commands link=static)
+	list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
+	if (CMAKE_OSX_DEPLOYMENT_TARGET)
+	  list (APPEND extra_build_commands cflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+	                                    cxxflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
+	                                    linkflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
+	endif()
+		
+	ExternalProject_Add (boost
+	  URL "https://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_1_75_0.tar.bz2"
+	  URL_HASH SHA256=953db31e016db7bb207f11432bef7df100516eeb746843fa0486a222e3fd49cb
+	  PREFIX boost
+	  DOWNLOAD_DIR ${download_location}
+	  INSTALL_DIR ${stage_location}
+	  BUILD_IN_SOURCE 1
+	  CONFIGURE_COMMAND
+	    <SOURCE_DIR>/bootstrap.sh
+	                      --prefix=<INSTALL_DIR>
+	                      --with-libraries=filesystem,system,thread
+	                      ${extra_bootstrap_commands}
+	  BUILD_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	                      ${extra_build_commands}
+	  INSTALL_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	                      ${extra_build_commands}
+	                      install
+	  )
+	set(boost_target boost CACHE INTERNAL "Boost target")
+	set(release_suffix "")
+	set(lib_ext a)
+	set(boost_cmake_params)
+	list(APPEND boost_cmake_params -DBoost_INCLUDE_DIR:PATH=${stage_location}/include CACHE INTERNAL "cmake parameters for using boost")
+
+	# n88util ----------------------------------------------------------------------------------------
 	set(n88util_cmake_params)
-	
-	set(aimio_cmake_params)
-	list (APPEND aimio_cmake_params -DN88_BUILD_AIX:BOOL=OFF)
-	
-	# n88util
-	set (n88util_soversion 2.0)
+	set(n88util_soversion 2.0)
 	ExternalProject_Add (n88util
 	  GIT_REPOSITORY "https://github.com/Numerics88/n88util.git"
 	  UPDATE_DISCONNECTED ${UPDATE_DISCONNECTED}
 	  PREFIX n88util
 	  DEPENDS ${boost_target}
 	  INSTALL_DIR ${stage_location}
-		CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params}
+	  CMAKE_ARGS ${project_cmake_params} ${n88util_cmake_params} ${boost_cmake_params}
 	)
 	
-	# AimIO
-	set (aimio_soversion 1.0)
+	# AimIO ------------------------------------------------------------------------------------------
+	set(aimio_cmake_params)
+	list (APPEND aimio_cmake_params -DN88_BUILD_AIX:BOOL=OFF)
+	set(aimio_soversion 1.0)
 	ExternalProject_Add (aimio
 	  GIT_REPOSITORY "https://github.com/Numerics88/AimIO.git"
 	  UPDATE_DISCONNECTED ${UPDATE_DISCONNECTED}
 	  PREFIX aimio
 	  DEPENDS n88util ${boost_target}
 	  INSTALL_DIR ${stage_location}
-	  CMAKE_ARGS ${project_cmake_params} ${aimio_cmake_params}
+	  CMAKE_ARGS ${project_cmake_params} ${aimio_cmake_params} ${boost_cmake_params}
 	  )
+	# set (aimio_cmake_params
+	#   -DAimIO_DIR:PATH=${stage_location}/lib/cmake/AimIO-${aimio_soversion}
+	#   CACHE INTERNAL "cmake parameters for using aimio")
+
+	ExternalProject_Get_Property(aimio install_dir)
+	include_directories(${install_dir}/include/)
+	link_directories(${install_dir}/lib/)
+
 endif()
 
 include(GNUInstallDirs)

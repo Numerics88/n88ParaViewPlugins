@@ -11,6 +11,19 @@ https://gitlab.kitware.com/paraview/paraview-plugin-builder/tree/master
 In general, first build ParaView. Then build the plugins against it. The build has to be *exactly* the same as how 
 the distributed binary ParaView is built. That's what makes it so tricky.
 
+Check your mental health before you try and build these plugins...
+
+## Learn more about plugins
+The C++ documentation contains dedicated pages:
+https://kitware.github.io/paraview-docs/latest/cxx/PluginHowto.html
+https://kitware.github.io/paraview-docs/latest/cxx/PluginMigration.html
+https://kitware.github.io/paraview-docs/latest/cxx/index.html
+
+The source code contains many plugin examples.
+https://gitlab.kitware.com/paraview/paraview/-/tree/master/Examples/Plugins
+
+The wiki used to be the official resources but it is being phased out.
+
 ## Build on CentOS Linux 7
 
 The easiest way to do this is to take advantage of Amazon's AWS service. There is information about CentOS
@@ -84,12 +97,13 @@ docker run hello-world
 ```
 
 ## Build ParaView
-Now that the AWS machine is ready, start building. I use the '-f' option as we need boost to be built
-if we're going to build the AIMReader plugin. At this time there is only 5.9.0 available as an option with the plugin builder, but it should be
+Now that the AWS machine is ready, start building. 
+
+At this time there is only 5.9.0 available as an option with the plugin builder, but it should be
 compatible with all v5.9 builds (until it isn't).
 ```s
 cd ~/paraview-plugin-builder
-./run_build_paraview.sh -c 7 -f v5.9.0
+./run_build_paraview.sh -c 7 v5.9.0
 ```
 Patience...
 
@@ -104,12 +118,7 @@ git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git checkout v5.9.1
 ```
-There is a file in paraview-plugin-builder called 'plugin.cmake' that provides necessary instructions for 
-building the plugins (particularly the AIMReader). Copy it from the n88ParaViewPlugins repository into the
-paraview-plugins-builder repository:
-```s
-cp /home/centos/code/n88ParaViewPlugins/v5.9.1/n88ParaViewPlugins/plugin.cmake /home/centos/paraview-plugin-builder/
-```
+Make sure that N88_BUILD_PACKAGES is set OFF in 'n88ParaViewPlugins/AIMReader/CMakeLists.txt'
 
 Once everything is in place, you simply build each of the plugins by running the script. I've ordered them below from 
 easiest to build to hardest. AIMReader requires n88util and AimIO to build, so it takes more time.

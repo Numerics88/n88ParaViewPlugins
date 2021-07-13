@@ -2,9 +2,11 @@ cmake_minimum_required(VERSION 3.8)
 
 project(ParaViewPlugins)
 
-message(STATUS "*** Let's get started on the CMake process.")
+message(STATUS ">>> Let's get started on the CMake process for ParaView plugins.")
 
 find_package (ParaView REQUIRED)
+include(${PARAVIEW_USE_FILE})
+include_directories(${ParaView_DIR})
 
 if (UNIX AND NOT APPLE)
   SET(CMAKE_INSTALL_RPATH "$ORIGIN:$ORIGIN/../lib/paraview-5.1")
