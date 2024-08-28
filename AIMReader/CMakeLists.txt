@@ -21,7 +21,7 @@ if (N88_BUILD_PACKAGES)
   include_directories (${AIMIO_INCLUDE_DIRS})
    
   # Requires Boost
-  find_package (Boost 1.61.0 COMPONENTS filesystem system REQUIRED)
+  find_package (Boost 1.70.0 COMPONENTS filesystem system REQUIRED)
   include_directories (${Boost_INCLUDE_DIR})
 
 else()
@@ -43,12 +43,13 @@ else()
 	# endif()
 	
 	# boost ------------------------------------------------------------------------------------------
-	set(boost_version 1.75.0)
+	set (boost_version 1.85.0)
+	string (REPLACE "." "_" boost_tarfile_version ${boost_version})
 	set (extra_bootstrap_commands)
 	if (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
-	  set (extra_bootstrap_commands --with-toolset=darwin)
+	  set (extra_bootstrap_commands --with-toolset=clang)
 	elseif (CMAKE_CXX_COMPILER_ID STREQUAL "Intel")
-	  set (extra_bootstrap_commands --with-toolset=intel-linux)
+	  set (extra_bootstrap_commands --with-toolset=intel)
 	endif()
 	
 	set (extra_build_commands)
@@ -60,30 +61,37 @@ else()
 	                                    cxxflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
 	                                    linkflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}")
 	endif()
-		
+
+	set (library_build_commands
+	  --with-filesystem
+	  --with-system
+	  --with-thread
+	  )
+
 	ExternalProject_Add (boost
-	  URL "https://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_1_75_0.tar.bz2"
-	  URL_HASH SHA256=953db31e016db7bb207f11432bef7df100516eeb746843fa0486a222e3fd49cb
+	  URL "https://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_${boost_tarfile_version}.tar.bz2"
+	  URL_HASH SHA256=7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
 	  PREFIX boost
 	  DOWNLOAD_DIR ${download_location}
 	  INSTALL_DIR ${stage_location}
 	  BUILD_IN_SOURCE 1
 	  CONFIGURE_COMMAND
 	    <SOURCE_DIR>/bootstrap.sh
-	                      --prefix=<INSTALL_DIR>
-	                      --with-libraries=filesystem,system,thread
 	                      ${extra_bootstrap_commands}
-	  BUILD_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	  BUILD_COMMAND <SOURCE_DIR>/b2
 	                      ${extra_build_commands}
-	  INSTALL_COMMAND <SOURCE_DIR>/tools/build/src/engine/bjam
+	                      ${library_build_commands}
+	  INSTALL_COMMAND <SOURCE_DIR>/b2
 	                      ${extra_build_commands}
-	                      install
+	                      ${library_build_commands}
+	                      install --prefix=<INSTALL_DIR>
 	  )
 	set(boost_target boost CACHE INTERNAL "Boost target")
 	set(release_suffix "")
 	set(lib_ext a)
-	set(boost_cmake_params)
-	list(APPEND boost_cmake_params -DBoost_INCLUDE_DIR:PATH=${stage_location}/include CACHE INTERNAL "cmake parameters for using boost")
+	set(boost_cmake_params
+	  "-DBoost_DIR:PATH=${stage_location}/lib/cmake/Boost-${boost_version}"
+	  CACHE INTERNAL "cmake parameters for using boost")
 
 	# n88util ----------------------------------------------------------------------------------------
 	set(n88util_cmake_params)
