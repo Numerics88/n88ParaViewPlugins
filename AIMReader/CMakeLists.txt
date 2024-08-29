@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 project(AIMReader)
 
 find_package(ParaView REQUIRED)
@@ -32,6 +32,11 @@ else()
 	
 	set(project_cmake_params)
 	list (APPEND project_cmake_params -DBUILD_SHARED_LIBS:BOOL=OFF)
+	if (NOT CMAKE_BUILD_TYPE STREQUAL "")
+	  list (APPEND project_cmake_params -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
+	endif()
+	# need to compile with std>=c++14 to use boost >= 1.75
+	list (APPEND project_cmake_params -DCMAKE_CXX_STANDARD:STRING=14)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
 	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
 
@@ -141,7 +146,7 @@ paraview_plugin_scan(
 
 foreach (module IN LISTS required_modules)
   if (NOT TARGET "${module}")
-    message(#FATAL_ERROR
+    message(STATUS #FATAL_ERROR
       "Skipping example ${CMAKE_PROJECT_NAME}: Missing required module: "
       "${module}")
     return ()

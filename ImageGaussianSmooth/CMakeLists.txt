@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION 3.8)
+cmake_minimum_required(VERSION 3.12)
 project(ImageGaussianSmooth)
 
 find_package(ParaView REQUIRED)
@@ -19,7 +19,7 @@ paraview_plugin_scan(
 
 foreach (module IN LISTS required_modules)
   if (NOT TARGET "${module}")
-    message(#FATAL_ERROR
+    message(STATUS #FATAL_ERROR
       "Skipping example ${CMAKE_PROJECT_NAME}: Missing required module: "
       "${module}")
     return ()
