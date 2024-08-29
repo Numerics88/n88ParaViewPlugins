@@ -35,7 +35,13 @@ else()
 	if (NOT CMAKE_BUILD_TYPE STREQUAL "")
 	  list (APPEND project_cmake_params -DCMAKE_BUILD_TYPE:STRING=${CMAKE_BUILD_TYPE})
 	endif()
-	# need to compile with std>=c++14 to use boost >= 1.75
+	if (APPLE)
+	  list (APPEND project_cmake_params
+	    -DCMAKE_OSX_ARCHITECTURES:STRING=${CMAKE_OSX_ARCHITECTURES}
+	    -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=${CMAKE_OSX_DEPLOYMENT_TARGET}
+	    -DCMAKE_OSX_SYSROOT:PATH=${CMAKE_OSX_SYSROOT})
+	endif ()
+	# need to compile with -std=c++14 to use boost >= 1.75
 	list (APPEND project_cmake_params -DCMAKE_CXX_STANDARD:STRING=14)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
 	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
