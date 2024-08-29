@@ -1,28 +1,41 @@
 # Build instructions for Linux
 
-These build instructions are particular to ParaView version 5.9.1 . Check out a different tag of the source code if you want 
+These build instructions are particular to ParaView version 5.13.0. Check out a different tag of the source code if you want
 to build for another version of ParaView.
 
-There is a very handy Git repository that helps build the plugins. I've tried to do it without this tool, but wasn't 
-successful. The method available in the repository is very slick:
+There is a very handy git repository that helps build the plugins. It relies on Docker, or a Docker-alike such podman, and is
+very slick.  Be sure to take a peek at the README file.
 ```s
-https://gitlab.kitware.com/paraview/paraview-plugin-builder/tree/master
+https://gitlab.kitware.com/paraview/paraview-easy-plugin-builder
 ```
-In general, first build ParaView. Then build the plugins against it. The build has to be *exactly* the same as how 
-the distributed binary ParaView is built. That's what makes it so tricky.
+Even if you aren't familiar with Docker, this is the recommended method, but be aware that Docker will need at least 10GB
+of storage space, usually in your home directory, to build the needed container.
 
-Check your mental health before you try and build these plugins...
+This method boils down to making a clone of the repository at the link mentioned above, and executing these commands:
+
+    cd paraview-easy-plugin-builder
+    docker pull docker.io/kitware/paraview_org-plugin-devel:5.13.0
+    ./run_build_plugin.sh -d /path/to/n88ParaViewPlugins 5.13.0
+    export PV_PLUGIN_PATH=`pwd`/output/lib64/paraview-5.13/plugins
+
+The last line might differ depending on your system, so please verify that the directory exists.  Then run ParaView (dowload it
+separately from http://paraview.org) and verify that the plugins work as they should.
+
+If you cannot use the above method, then you must build ParaView yourself, with *exactly* the same parameters and packages
+as the binary download of ParaView.  Then manually build the plugins against it.  Check your mental health before you try
+doing this.
 
 ## Learn more about plugins
+
 The C++ documentation contains dedicated pages:
-https://kitware.github.io/paraview-docs/latest/cxx/PluginHowto.html
-https://kitware.github.io/paraview-docs/latest/cxx/PluginMigration.html
-https://kitware.github.io/paraview-docs/latest/cxx/index.html
+https://www.paraview.org/paraview-docs/nightly/cxx/PluginHowto.html
+https://www.paraview.org/paraview-docs/nightly/cxx/PluginMigration.html
+https://www.paraview.org/paraview-docs/nightly/cxx/index.html
 
 The source code contains many plugin examples.
 https://gitlab.kitware.com/paraview/paraview/-/tree/master/Examples/Plugins
 
-The wiki used to be the official resources but it is being phased out.
+Note that any documentation on the ParaView wiki is out of date.
 
 ## Build on CentOS Linux 7
 
