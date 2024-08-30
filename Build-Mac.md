@@ -184,8 +184,8 @@ git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git tag # available versions
 git checkout v5.13.0
-mkdir -p ../n88ParaViewPlugins-build/v5.13.0
-cd ../n88ParaViewPlugins-build/v5.13.0
+mkdir ../n88ParaViewPlugins-build
+cd ../n88ParaViewPlugins-build
 ```
 
 Next, some environment variable must be set, so that cmake can find what it needs from ParaView.
@@ -238,7 +238,7 @@ cd ImageGaussianSmooth
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} ImageGaussianSmooth.so
 cd ../AIMReader
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} AIMReader.so
-cd ../n88MOdelReader
+cd ../n88ModelReader
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} N88ModelReader.so
 popd
 ```
