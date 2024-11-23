@@ -1,10 +1,10 @@
 # Build instructions for macOS
 
-These build instructions are particular to ParaView version 5.13.0.
+These build instructions are particular to ParaView version 5.13.1.
 Checkout a different tag of the source code if you want to build for another version of ParaView.
 
 Before building the plugins, it is necessary to build ParaView, using the ParaView superbuild,
-in a way such that the plugins build against it will load in the binary distribution of ParaView.
+in a way such that the plugins built against it will load in the binary distribution of ParaView.
 
 Check your mental health before you try and build these plugins...
 
@@ -46,7 +46,7 @@ around 2GB of disk space.  To do the latter,
     xcode-select --install
 
 This command will bring up a dialog box where you can agree to Apple's license terms and
-and install the lightweight version of Apple's developer tools.  This will provide everything
+install the lightweight version of Apple's developer tools.  This will provide everything
 you need to build ParaView.
 
 If you start with the lightweight option, but later decide to install Xcode, you can set
@@ -63,15 +63,29 @@ You can verify which version of "clang" you are using:
     Thread model: posix
     InstalledDir: /Library/Developer/CommandLineTools/usr/bin
 
+Also, once you know where "clang" is installed, you can check which SDKs are available:
+
+    ls /Library/Developer/CommandLineTools/SDKs
+
+    MacOSX13.1.sdk
+    MacOSX14.2.sdk
+
+Currently, paraview release packages are built with MacOSX13.1.sdk (more details on this below).
+Sometimes, even when "superbuild" is told to use a specific SDK, projects in the superbuild will
+find other SDKs.  In one instance, the superbuild built Python with one SDK but attepted to build
+some of Python's modules (in this case, `_scproxy.c`) with a different SDK.  If there are errors
+during the superbuild build of Python, you can try temporarily moving all but your desired SDK out
+of the SDKs directory, and then retrying the build.
+
 ## Install the binary distribution of cmake
 
 You can install binary packages of cmake from https://cmake.org/download which will place cmake
-in your /Applications folder.
+in your /Applications folder.  For superbuild, cmake 3.26 or later is recommended.
 
 Alternatively, and my preference, I use Anaconda (https://docs.conda.io/en/latest/miniconda.html) to set up a conda environment. 
 
 ```sh
-$ conda create -n paraview -c conda-forge cmake=3.20 python=3.10
+$ conda create -n paraview -c conda-forge cmake=3.26 python=3.10
 $ conda activate paraview
 ```
 
@@ -109,14 +123,27 @@ Rather than cloning ParaView itself, you must clone the ParaView superbuild repo
 git clone --recursive https://gitlab.kitware.com/paraview/paraview-superbuild.git
 ```
 
-It is very important to use the exact version of that matches the binary package for
-which you are building the plugins.
+Since our goal is to build plugins for the most recent stable release of paraview, we use the
+'release' branch of paraview-superbuild.
 
 ```sh
 cd paraview-superbuild
-git checkout v5.13.0
+git checkout release
 git submodule update
 ```
+
+The paraview-superbuild directory has a subdirectory called "superbuild", which is actually a
+separate git repository.  In order to get netcdf to build for Paraview 5.13.1, you might need
+to bring in a netcdf-specific patch as follows (the starting point here is the paraview-superbuild
+directory):
+
+```sh
+cd superbuild
+git merge --ff-only 3aa9b824
+cd ..
+```
+This patch fixes a build error in the code where netcdf loads hdf5 files (file: hdf5open.c).
+
 
 ## Configure CMake
 
@@ -135,17 +162,14 @@ The following settings are recommended:
 - Set `superbuild_download_location` to the downloads directory you created
 - Set `CMAKE_OSX_ARCHITECTURES` to `x86_64` for Intel CPU, or `arm64` for Apple CPU
 - Set `CMAKE_OSX_DEPLOYMENT_TARGET` to 10.15 for Intel CPU, or 11.0 for Apple CPU
-- Set `CMAKE_OSX_SYSROOT` to `/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk`
-- Set `USE_NONFREE_COMPONENTS` to `OFF` (default).
-- Set `OFF` for the following (defaults):
-	- `ENABLE_paraviewgettingstartedguide`
-	- `ENABLE_paraviewtutorialdata`
+- Set `CMAKE_OSX_SYSROOT` to `/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk`
 - Set `ENABLE_ospray` to `ON`. This affects which system libraries everything links to (e.g. netcdf, hdf5, etc).
 - Set `ENABLE_hdf5` to `ON`.
 - Set `ENABLE_netcdf` to `ON`.
+- Set `ENABLE_python3` to `ON`.
 
 If you have the full Xcode instead of the developer command line tools, use this as the SDK:
-- `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX.sdk`
+- `/Applications/Xcode.app/Contents/Developer/Platforms/MacOSX.platform/Developer/SDKs/MacOSX13.1.sdk`
 
 Some further settings that will pop up in subsequent iterations of the configuration process are: 
 - Set `BUILD_TESTING` to `OFF`.
@@ -183,9 +207,9 @@ the master branch if no exact match is available.
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
 git tag # available versions
-git checkout v5.13.0
-mkdir ../n88ParaViewPlugins-build
-cd ../n88ParaViewPlugins-build
+git checkout v5.13.1
+mkdir -p ../n88ParaViewPlugins-build/v5.13.1
+cd ../n88ParaViewPlugins-build/v5.13.1
 ```
 
 Next, some environment variable must be set, so that cmake can find what it needs from ParaView.
@@ -202,6 +226,7 @@ export rkcommon_DIR=${PVSB}/install/lib/cmake/rkcommon-1.7.0/
 export openvkl_DIR=${PVSB}/install/lib/cmake/openvkl-1.0.1/
 export netCDF_DIR=${PVSB}/install/lib/cmake/netCDF
 export nlohmann_json_DIR=${PVSB}/superbuild/nlohmannjson/build/
+export ZLIB_ROOT=${PVSB}/install
 ```
 
 Finally, you are ready to do the build.  Make sure the `ARCHITECTURES` is set to `x86_64` or
@@ -210,10 +235,12 @@ the `DEPLOYMENT_TARGET` matches the macOS version stamped on the binary ParaView
 
 ```sh
 cmake -DCMAKE_BUILD_TYPE=Release -DCMAKE_CXX_STANDARD:STRING=14 \
-      -DCMAKE_OSX_ARCHITECTURES:STRING=x86_64 \
-      -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=10.15 \
-      -DCMAKE_OSX_SYSROOT:PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk \
+      -DCMAKE_OSX_ARCHITECTURES:STRING=arm64 \
+      -DCMAKE_OSX_DEPLOYMENT_TARGET:STRING=11.0 \
+      -DCMAKE_OSX_SYSROOT:PATH=/Library/Developer/CommandLineTools/SDKs/MacOSX13.1.sdk \
       -DCMAKE_INSTALL_PREFIX=`pwd`/install \
+      -DPNG_PNG_INCLUDE_DIR:PATH=${PVSB}/install/include/libpng16 \
+      -DPNG_LIBRARY_RELEASE:FILEPATH=${PVSB}/install/lib/libpng16.16.dylib \
       ../n88ParaViewPlugins
 make
 make install
@@ -238,7 +265,7 @@ cd ImageGaussianSmooth
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} ImageGaussianSmooth.so
 cd ../AIMReader
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} AIMReader.so
-cd ../n88ModelReader
+cd ../N88ModelReader
 ../../../../../../n88ParaViewPlugins/fix_osx_libraries.sh ${PVSB} N88ModelReader.so
 popd
 ```
@@ -254,11 +281,11 @@ Try something like this to create a plugin package.
 mkdir -p ~/Downloads/Numerics88/Plugins/ParaView-5.13
 cp install/lib/paraview-5.13/plugins/*/*.so ~/Downloads/Numerics88/Plugins/ParaView-5.13
 cd ~/Downloads
-tar -cjvSf n88ParaViewPlugins-5.13.0-Mac-arm64.tar.bz2 ./Numerics88
+tar -cjvSf n88ParaViewPlugins-5.13.1-Mac-arm64.tar.bz2 ./Numerics88
 ```
 
 Then you can extract the archive like this:
 
 ```sh
-tar -xjvf n88ParaViewPlugins-5.13.0-Mac-arm64.tar.bz2
+tar -xjvf n88ParaViewPlugins-5.13.1-Mac-arm64.tar.bz2
 ```

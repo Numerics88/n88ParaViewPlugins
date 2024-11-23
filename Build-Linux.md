@@ -1,6 +1,6 @@
 # Build instructions for Linux
 
-These build instructions are particular to ParaView version 5.13.0. Check out a different tag of the source code if you want
+These build instructions are particular to ParaView version 5.13.1. Check out a different tag of the source code if you want
 to build for another version of ParaView.
 
 There is a very handy git repository that helps build the plugins. It relies on Docker, or a Docker-alike such podman, and is
@@ -14,8 +14,8 @@ of storage space, usually in your home directory, to build the needed container.
 This method boils down to making a clone of the repository at the link mentioned above, and executing these commands:
 
     cd paraview-easy-plugin-builder
-    docker pull docker.io/kitware/paraview_org-plugin-devel:5.13.0
-    ./run_build_plugin.sh -d /path/to/n88ParaViewPlugins 5.13.0
+    docker pull docker.io/kitware/paraview_org-plugin-devel:5.13.1
+    ./run_build_plugin.sh -d /path/to/n88ParaViewPlugins 5.13.1
     export PV_PLUGIN_PATH=`pwd`/output/lib64/paraview-5.13/plugins
 
 The last line might differ depending on your system, so please verify that the directory exists.  Then run ParaView (dowload it
@@ -37,14 +37,27 @@ The source code contains many plugin examples.
 
 Note that any documentation on the ParaView wiki is out of date.
 
+## Learn more about Podman
+
+Podman is a lightweight open-source replacement for Docker.  Once you install it, you can run "docker"
+commands just like you would with the real Docker.  It isn't a perfect clone, but usually close enough.
+
+On an ubuntu system install as follows:
+```s
+sudo apt-get install podman podman-docker
+```
+On a redhat-based system,
+```s
+sudo dnf install podman podman-docker
+```
+The podman-docker package makes a fake "docker" command that emulates docker.  But if you want, you can
+use the "podman" command instead, since it takes most of the same options.
+
 ## Build on CentOS Linux 7
 
-The easiest way to do this is to take advantage of Amazon's AWS service. There is information about CentOS
-on AWS here:
+This section is out-of-date, since CentOS 7 has expired, but the same formula should mostly work with
+Amazon Linux 2 on Amazon's AWS service.
 
-```s
-https://wiki.centos.org/Cloud/AWS
-```
 Go to aws.amazon.com to launch an EC2 using a pre-defined AMI. To launch it select AIMs from the panel 
 on the left, then click "Owned by me" and select "Public images" to choose the correct AMI: 
 ```s
@@ -148,21 +161,20 @@ If successful (I hope!) they will be located in '/home/centos/paraview-plugin-bu
 Move the .so files to a file structure that is standard for n88:
 
 ```sh
-mkdir -p ~/Numerics88/Plugins/ParaView-5.9
-cp /home/centos/paraview-plugin-builder/output/*.so ~/Numerics88/Plugins/ParaView-5.9
+mkdir -p ~/Numerics88/Plugins/ParaView-5.13
+cp /home/centos/paraview-plugin-builder/output/*.so ~/Numerics88/Plugins/ParaView-5.13
 cd ~
-tar -cvf n88ParaViewPlugins-5.9.1-Linux.tar.bz2 ./Numerics88
+tar -cjvf n88ParaViewPlugins-5.13.1-Linux-x86_64.tar.bz2 ./Numerics88
 ```
 
 Then you can extract the archive like this:
 
 ```sh
-tar xvfj n88ParaViewPlugins-5.9.1-Linux.tar.bz2
+tar -xjvf n88ParaViewPlugins-5.13.1-Linux-x86_64.tar.bz2
 ```
 
-Test the plugins on a system that has ParaView 5.9 running. If you need to see verbose output as you
+Test the plugins on a system that has ParaView 5.13.1 running. If you need to see verbose output as you
 load a plugin you can launch ParaView as follows:
 ```sh
 $ env PARAVIEW_LOG_PLUGIN_VERBOSITY=0 ./paraview
 ```
-
