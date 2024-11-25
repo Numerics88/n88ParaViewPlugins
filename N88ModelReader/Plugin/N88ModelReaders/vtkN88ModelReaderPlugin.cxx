@@ -148,7 +148,7 @@ int vtkN88ModelReaderPlugin::ReadAttributes
       {
       vtkErrorMacro(<< "Error reading ActiveSolution attribute in NetCDF file.");
       return VTK_ERROR;
-      }    
+      }
     this->SetActiveSolution(buffer.c_str());
     // Get ActiveProblem from Solution
     int solutions_ncid;
@@ -167,13 +167,13 @@ int vtkN88ModelReaderPlugin::ReadAttributes
       {
       vtkErrorMacro(<< "Problem attribute not found for specified ActiveSolution.");
       return VTK_ERROR;
-      }    
+      }
     buffer.resize(att_len);
     if (nc_get_att_text (activeSolution_ncid, NC_GLOBAL, "Problem", &buffer[0]) != NC_NOERR)
       {
       vtkErrorMacro(<< "Error reading Problem in ActiveSolution group " << this->ActiveSolution << ".");
       return VTK_ERROR;
-      }    
+      }
     this->SetActiveProblem(buffer.c_str());
     }
   else
@@ -183,13 +183,13 @@ int vtkN88ModelReaderPlugin::ReadAttributes
       {
       vtkErrorMacro(<< "Neither ActiveSolution nor ActiveProblem attribute not found in NetCDF file.");
       return VTK_ERROR;
-      }    
+      }
     buffer.resize(att_len);
     if (nc_get_att_text (ncid, NC_GLOBAL, "ActiveProblem", &buffer[0]) != NC_NOERR)
       {
       vtkErrorMacro(<< "Error reading ActiveProblem attribute in NetCDF file.");
       return VTK_ERROR;
-      }    
+      }
     this->SetActiveProblem(buffer.c_str());
     }
 
@@ -198,15 +198,15 @@ int vtkN88ModelReaderPlugin::ReadAttributes
     {
     vtkErrorMacro(<< "Dimensionality dimension not found in NetCDF file.");
     return VTK_ERROR;
-    }    
+    }
   size_t dimensions = 0;
   NC_SAFE_CALL( nc_inq_dimlen(ncid, dimid, &dimensions) );
   if (dimensions != 3)
     {
     vtkErrorMacro(<< "Only dimensionality of 3 currently supported.");
     return VTK_ERROR;
-    }    
-  
+    }
+
   return VTK_OK;
 }
 
@@ -237,7 +237,7 @@ int vtkN88ModelReaderPlugin::ReadProblem
     {
     vtkErrorMacro(<< "Part attribute not found in NetCDF file.");
     return VTK_ERROR;
-    }    
+    }
   buffer.resize(att_len);
   if (nc_get_att_text (activeProblem_ncid, NC_GLOBAL, "Part", &buffer[0]) != NC_NOERR)
     {
@@ -397,7 +397,7 @@ int vtkN88ModelReaderPlugin::ReadElements
     {
     vtkErrorMacro (<< "NodeNumbers variable must have second dimension size of 8 in Hexahedrons.");
     return VTK_ERROR;
-    }  
+    }
   size_t nodeNumbers_len = 0;
   NC_SAFE_CALL (nc_inq_dimlen(hexahedrons_ncid, dimid[0], &nodeNumbers_len));
   if (nodeNumbers_len != elementNumber_len)
@@ -416,7 +416,7 @@ int vtkN88ModelReaderPlugin::ReadElements
   // The following allocation is exact
   cells->Allocate(cells->EstimateSize(nodeNumbers_len, nodesPerElement));
   vtkSmartPointer<vtkIdList> pointIds = vtkSmartPointer<vtkIdList>::New();
-  pointIds->SetNumberOfIds(nodesPerElement);    
+  pointIds->SetNumberOfIds(nodesPerElement);
   for (vtkIdType newCellId=0; newCellId < nodeNumbers_len; ++newCellId)
     {
     // Convert from 1-indexed to 0-indexed.
