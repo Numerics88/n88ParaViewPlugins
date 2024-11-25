@@ -2,7 +2,7 @@
 #include "vtkImageData.h"
 #include "vtkObjectFactory.h"
 #include "vtkShortArray.h"
-#include "vtkCharArray.h"
+#include "vtkSignedCharArray.h"
 #include "vtkFloatArray.h"
 #include "vtkPointData.h"
 #include "vtkCellData.h"
@@ -232,10 +232,9 @@ int vtkboneAIMReader::RequestData (vtkInformation*,
 
   switch( scalarType )
   {
-
-    case VTK_UNSIGNED_CHAR:
+    case VTK_SIGNED_CHAR:
     {
-      vtkSmartPointer<vtkCharArray> carray = vtkSmartPointer<vtkCharArray>::New();
+      vtkSmartPointer<vtkSignedCharArray> carray = vtkSmartPointer<vtkSignedCharArray>::New();
       carray->SetNumberOfComponents(1);
       carray->SetNumberOfValues(N);
       try
