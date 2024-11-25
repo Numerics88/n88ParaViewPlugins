@@ -68,14 +68,14 @@ int vtkAIMReaderPlugin::RequestInformation (
   int extent[6];
   readerInfo->Get (vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent);
   if (Pad && !DataOnCells)
-    {
+  {
     extent[0] -= 1;
     extent[1] += 1;
     extent[2] -= 1;
     extent[3] += 1;
     extent[4] -= 1;
     extent[5] += 1;
-    }
+  }
   outInfo->Set (vtkStreamingDemandDrivenPipeline::WHOLE_EXTENT(), extent, 6);
 
   double spacing[3];
@@ -87,50 +87,50 @@ int vtkAIMReaderPlugin::RequestInformation (
 
 #ifdef AIMREADER_CONVERT_TO_FLOAT
   if (DataOnCells)
-    {
+  {
     vtkDataObject::SetActiveAttributeInfo(outInfo, vtkDataObject::FIELD_ASSOCIATION_CELLS,
       vtkDataSetAttributes::SCALARS, NULL, VTK_FLOAT, 1, -1);
-    }
+  }
   else
-    {
+  {
     vtkDataObject::SetPointDataActiveScalarInfo (outInfo, VTK_FLOAT, 1);
-    }
+  }
 #else
   if (DataOnCells)
-    {
+  {
     vtkInformation *attrInfo = vtkDataObject::GetActiveFieldInformation(readerInfo,
       vtkDataObject::FIELD_ASSOCIATION_CELLS, vtkDataSetAttributes::SCALARS);
     if (!attrInfo)
-      {
+    {
       vtkErrorMacro(<< "AIM Reader did not produce active field information.");
       return 0;
-      }
+    }
     if (!attrInfo->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
-      {
+    {
       vtkErrorMacro(<< "Data type unidentified by AIM Reader.");
       return 0;
-      }
+    }
     int dataType = attrInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
     vtkDataObject::SetActiveAttributeInfo(outInfo, vtkDataObject::FIELD_ASSOCIATION_CELLS,
       vtkDataSetAttributes::SCALARS, NULL, dataType, 1, -1);
-    }
+  }
   else
-    {
+  {
     vtkInformation *attrInfo = vtkDataObject::GetActiveFieldInformation(readerInfo,
       vtkDataObject::FIELD_ASSOCIATION_POINTS, vtkDataSetAttributes::SCALARS);
     if (!attrInfo)
-      {
+    {
       vtkErrorMacro(<< "AIM Reader did not produce active field information.");
       return 0;
-      }
+    }
     if (!attrInfo->Has(vtkDataObject::FIELD_ARRAY_TYPE()))
-      {
+    {
       vtkErrorMacro(<< "Data type unidentified by AIM Reader.");
       return 0;
-      }
+    }
     int dataType = attrInfo->Get(vtkDataObject::FIELD_ARRAY_TYPE());
     vtkDataObject::SetPointDataActiveScalarInfo (outInfo, dataType, 1);
-    }
+  }
 #endif
   return 1;
 }
@@ -159,7 +159,7 @@ int vtkAIMReaderPlugin::RequestData (vtkInformation*,
   caster->Update();
 #endif
   if (Pad && !DataOnCells)
-    {
+  {
     vtkSmartPointer<vtkImageConstantPad> padder =
                                    vtkSmartPointer<vtkImageConstantPad>::New();
 #ifdef AIMREADER_CONVERT_TO_FLOAT
@@ -177,15 +177,15 @@ int vtkAIMReaderPlugin::RequestData (vtkInformation*,
     padder->SetConstant(0);
     padder->Update();
     out->ShallowCopy(padder->GetOutput());
-    }
+  }
   else
-    {
+  {
 #ifdef AIMREADER_CONVERT_TO_FLOAT
     out->ShallowCopy(caster->GetOutput());
 #else
     out->ShallowCopy(reader->GetOutput());
 #endif
-    }
+  }
 
   return 1;
 }
