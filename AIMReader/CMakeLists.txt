@@ -13,15 +13,15 @@ option(N88_BUILD_PACKAGES "Build dependencies for the plugins separately." OFF)
 
 if (N88_BUILD_PACKAGES)
   # Requires n88util
-  find_package (n88util 2.0 REQUIRED)
+  find_package (n88util REQUIRED)
   include_directories (${N88UTIL_INCLUDE_DIRS})
   
   # Requires AimIO
-  find_package (AimIO 1.0 REQUIRED)
+  find_package (AimIO REQUIRED)
   include_directories (${AIMIO_INCLUDE_DIRS})
    
   # Requires Boost
-  find_package (Boost 1.70.0 COMPONENTS filesystem system REQUIRED)
+  find_package (Boost COMPONENTS filesystem system REQUIRED)
   include_directories (${Boost_INCLUDE_DIR})
 
 else()
@@ -44,7 +44,9 @@ else()
 	# need to compile with -std=c++14 to use boost >= 1.75
 	list (APPEND project_cmake_params -DCMAKE_CXX_STANDARD:STRING=14)
 	list (APPEND project_cmake_params -DCMAKE_INSTALL_PREFIX:PATH=${stage_location})
-	list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
+	if(NOT WIN32)
+	  list (APPEND project_cmake_params -DCMAKE_C_FLAGS=-fPIC -DCMAKE_CXX_FLAGS=-fPIC)
+	endif()
 
 	# message(STATUS ">>> Checking the boost build:")
 	# find_program(LS ls)
@@ -54,6 +56,10 @@ else()
 	# endif()
 	
 	# boost ------------------------------------------------------------------------------------------
+	if(WIN32)
+		include_directories(${stage_location}/include/boost-1_85)
+	endif()
+
 	set (boost_version 1.85.0)
 	string (REPLACE "." "_" boost_tarfile_version ${boost_version})
 	set (extra_bootstrap_commands)
@@ -66,7 +72,9 @@ else()
 	set (extra_build_commands)
 	list (APPEND extra_build_commands variant=release)
 	list (APPEND extra_build_commands link=static)
-	list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
+	if (NOT WIN32)
+	  list (APPEND extra_build_commands cxxflags=-fPIC cflags=-fPIC)
+	endif()
 	if (CMAKE_OSX_DEPLOYMENT_TARGET)
 	  list (APPEND extra_build_commands cflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
 	                                    cxxflags="-mmacosx-version-min=${CMAKE_OSX_DEPLOYMENT_TARGET}"
@@ -79,6 +87,14 @@ else()
 	  --with-thread
 	  )
 
+	if(WIN32)
+		set(boost_configure_cmd <SOURCE_DIR>/bootstrap.bat)
+		set(boost_build_cmd <SOURCE_DIR>/b2.exe)
+	else()
+		set(boost_configure_cmd <SOURCE_DIR>/bootstrap.sh)
+		set(boost_build_cmd <SOURCE_DIR>/b2)
+	endif()
+
 	ExternalProject_Add (boost
 	  URL "https://sourceforge.net/projects/boost/files/boost/${boost_version}/boost_${boost_tarfile_version}.tar.bz2"
 	  URL_HASH SHA256=7009fe1faa1697476bdc7027703a2badb84e849b7b0baad5086b087b971f8617
@@ -86,20 +102,17 @@ else()
 	  DOWNLOAD_DIR ${download_location}
 	  INSTALL_DIR ${stage_location}
 	  BUILD_IN_SOURCE 1
-	  CONFIGURE_COMMAND
-	    <SOURCE_DIR>/bootstrap.sh
-	                      ${extra_bootstrap_commands}
-	  BUILD_COMMAND <SOURCE_DIR>/b2
-	                      ${extra_build_commands}
-	                      ${library_build_commands}
-	  INSTALL_COMMAND <SOURCE_DIR>/b2
-	                      ${extra_build_commands}
-	                      ${library_build_commands}
-	                      install --prefix=<INSTALL_DIR>
+  	  CONFIGURE_COMMAND ${boost_configure_cmd}
+	  BUILD_COMMAND     ${boost_build_cmd} ${extra_build_commands} ${library_build_commands}
+	  INSTALL_COMMAND   ${boost_build_cmd} ${extra_build_commands} ${library_build_commands} install --prefix=<INSTALL_DIR> --includedir=<INSTALL_DIR>/include
 	  )
 	set(boost_target boost CACHE INTERNAL "Boost target")
 	set(release_suffix "")
-	set(lib_ext a)
+	if(WIN32)
+	  set(lib_ext lib)
+	else()
+	  set(lib_ext a)
+	endif()
 	set(boost_cmake_params
 	  "-DBoost_DIR:PATH=${stage_location}/lib/cmake/Boost-${boost_version}"
 	  CACHE INTERNAL "cmake parameters for using boost")
