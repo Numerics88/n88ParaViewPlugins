@@ -87,6 +87,8 @@ Use **CMake version 3.26.4**. n88ParaViewPlugins will not be compatible with new
 
 CMake is now ready for use in your build environment.
 
+**Note** You must open `x64 Native Tools Command Prompt for VS 2022` as `Administator` on Windows for the rest of the build.
+
 ## Get the ParaView Superbuild
 
 Rather than cloning ParaView itself, you must clone the ParaView superbuild repository:
@@ -102,6 +104,18 @@ Since our goal is to build plugins for the most recent stable release of paravie
 cd paraview-superbuild
 git checkout release
 git submodule update
+```
+
+If you want to build for a specific ParaView version, you need to checkout the specific version before starting any builds.
+
+To see all available versions, run:
+```sh
+git tag
+```
+
+To checkout the specific version (i.e. v5.13.1), run:
+```sh
+git checkout v5.13.1
 ```
 
 The paraview-superbuild directory has a subdirectory called "superbuild", which is actually a
@@ -147,10 +161,10 @@ The downloads directory is where the superbuild will cache any tarballs it downl
 The following instructions are for configuring using cmake-gui.
 
 ```sh
-mkdir ../paraview-superbuild-build
-mkdir ../paraview-superbuild-downloads
-cd ../paraview-superbuild-build
-cmake-gui ../paraview-superbuild
+mkdir ..\paraview-superbuild-build
+mkdir ..\paraview-superbuild-downloads
+cd ..\paraview-superbuild-build
+cmake-gui ..\paraview-superbuild
 ```
 
 The following settings are recommended:
@@ -177,7 +191,7 @@ since it's much easier to download the ParaView binary package instead.
 
 ## Build Paraview-Superbuild
 
-After configuring with cmake-gui, go to the \paraview-superbuild-build directory and install with Ninja
+After configuring with cmake-gui, open an `x64 Native Tools Command Prompt for VS 2022` window and set your working directory to the \paraview-superbuild-build directory. **You must run the terminal as an administator**, as the plugins will be installed to `C:\Program Files`.
 
 ```sh
 ninja install -v
@@ -195,8 +209,8 @@ the master branch if no exact match is available.
 ```sh
 git clone https://github.com/Numerics88/n88ParaViewPlugins.git
 cd n88ParaViewPlugins
-mkdir -p ../n88ParaViewPlugins-build/v5.13.1
-cd ../n88ParaViewPlugins-build/v5.13.1
+mkdir -p ..\n88ParaViewPlugins-build\v5.13.1
+cd ..\n88ParaViewPlugins-build\v5.13.1
 
 ```
 Next, some environment variable must be set, so that cmake can find what it needs from ParaView.
@@ -213,12 +227,18 @@ set netCDF_DIR=%PVSB%\install\lib\cmake\netCDF
 set nlohmann_json_DIR=%PVSB%\superbuild\nlohmannjson\build\
 set ZLIB_ROOT=%PVSB%\install
 ```
-Now, configure the build with `cmake-gui`
+Now, configure the build with `cmake-gui`. Choose Ninja as your generator.
+
+```sh
+cmake-gui ..\..\n88ParaviewPlugins
+```
 
 Set `CMAKE_BUILD_TYPE` to `Release`, then hit "Configure" and "Generate".
 
+Finally, run `ninja install -v`.
 
+After the build completes, you can find the plugins here:
+- `C:\Program Files\ParaviewPlugins\bin\v5.13` for `x32` bit Windows
+- `C:\Program Files\ParaviewPlugins (x86)\bin\v5.13` for `x64` bit Windows
 
-
-
-
+The ParaView version might differ based on your selected `paraview-superbuild` version.
