@@ -13,15 +13,15 @@ option(N88_BUILD_PACKAGES "Build dependencies for the plugins separately." OFF)
 
 if (N88_BUILD_PACKAGES)
   # Requires n88util
-  find_package (n88util REQUIRED)
+  find_package (n88util 2.0 REQUIRED)
   include_directories (${N88UTIL_INCLUDE_DIRS})
   
   # Requires AimIO
-  find_package (AimIO REQUIRED)
+  find_package (AimIO 1.0 REQUIRED)
   include_directories (${AIMIO_INCLUDE_DIRS})
    
   # Requires Boost
-  find_package (Boost COMPONENTS filesystem system REQUIRED)
+  find_package (Boost 1.70.0 COMPONENTS filesystem system REQUIRED)
   include_directories (${Boost_INCLUDE_DIR})
 
 else()

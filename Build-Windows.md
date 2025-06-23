@@ -242,3 +242,10 @@ After the build completes, you can find the plugins here:
 - `C:\Program Files\ParaviewPlugins (x86)\bin\v5.13` for `x64` bit Windows
 
 The ParaView version might differ based on your selected `paraview-superbuild` version.
+
+## Create an archive for distribution
+
+Package three plugin folders in `C:\Program Files\ParaviewPlugins\bin\v5.13` or `C:\Program Files\ParaviewPlugins (x86)\bin\v5.13` in a zip file. These folders should contain the following DLL files:
+1. AIMReader.dll
+2. ImageGaussianSmooth.dll
+3. N88ModelReader.dll
